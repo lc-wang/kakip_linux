@@ -1,0 +1,180 @@
+#!/bin/sh
+VAR_UNI_NATIVE=`pwd`
+VAR_WS=`pwd`
+# YOCTO_WORK="/home/ubuntu/amatama/ai_sdk_work/src_setup/yocto"
+YOCTO_WORK=`pwd`
+EXE_PATH="/usr/bin"
+
+# Emit a useful diagnostic if something fails:
+bb_exit_handler() {
+    ret=$?
+    case $ret in
+    0)  ;;
+    *)  case $BASH_VERSION in
+        "") echo "WARNING: exit code $ret from a shell command.";;
+        *)  echo "WARNING: ${BASH_SOURCE[0]}:${BASH_LINENO[0]} exit $ret from '$BASH_COMMAND'";;
+        esac
+        exit $ret
+    esac
+}
+trap 'bb_exit_handler' 0
+set -e
+export AR="aarch64-poky-linux-gcc-ar"
+export ARCH="arm64"
+export AS="aarch64-poky-linux-as "
+export BUILD_AR="ar"
+export BUILD_AS="as "
+export BUILD_CC="gcc "
+export BUILD_CCLD="gcc "
+export BUILD_CFLAGS="-isystem${VAR_WS}/recipe-sysroot-native/usr/include -O2 -pipe"
+export BUILD_CPP="gcc  -E"
+export BUILD_CPPFLAGS="-isystem${VAR_WS}/recipe-sysroot-native/usr/include"
+export BUILD_CXX="g++ "
+export BUILD_CXXFLAGS="-isystem${VAR_WS}/recipe-sysroot-native/usr/include -O2 -pipe"
+export BUILD_FC="gfortran "
+export BUILD_LD="ld "
+export BUILD_LDFLAGS="-L${VAR_WS}/recipe-sysroot-native/usr/lib                         -L${VAR_WS}/recipe-sysroot-native/lib                         -Wl,--enable-new-dtags                         -Wl,-rpath-link,${VAR_WS}/recipe-sysroot-native/usr/lib                         -Wl,-rpath-link,${VAR_WS}/recipe-sysroot-native/lib                         -Wl,-rpath,${VAR_WS}/recipe-sysroot-native/usr/lib                         -Wl,-rpath,${VAR_WS}/recipe-sysroot-native/lib                         -Wl,-O1 -Wl,--allow-shlib-undefined -Wl,--dynamic-linker=${VAR_UNI_NATIVE}/x86_64-linux/lib/ld-linux-x86-64.so.2"
+export BUILD_NM="nm"
+export BUILD_RANLIB="ranlib"
+export BUILD_STRIP="strip"
+export CC="aarch64-poky-linux-gcc  -mtune=cortex-a55 -fstack-protector-strong  -D_FORTIFY_SOURCE=2 -Wformat -Wformat-security -Werror=format-security --sysroot=${VAR_WS}/recipe-sysroot"
+export CCLD="aarch64-poky-linux-gcc  -mtune=cortex-a55 -fstack-protector-strong  -D_FORTIFY_SOURCE=2 -Wformat -Wformat-security -Werror=format-security --sysroot=${VAR_WS}/recipe-sysroot"
+export CFLAGS=" -O2 -pipe -g -feliminate-unused-debug-types -fmacro-prefix-map=${VAR_WS}=/usr/src/debug/linux-renesas/5.10.145-cip17+gitAUTOINC+e61e051bbc-r1                      -fdebug-prefix-map=${VAR_WS}=/usr/src/debug/linux-renesas/5.10.145-cip17+gitAUTOINC+e61e051bbc-r1                      -fdebug-prefix-map=${VAR_WS}/recipe-sysroot=                      -fdebug-prefix-map=${VAR_WS}/recipe-sysroot-native= "
+export CMDLINE_CONSOLE="console=ttyS0"
+export CPP="aarch64-poky-linux-gcc -E --sysroot=${VAR_WS}/recipe-sysroot  -mtune=cortex-a55 -fstack-protector-strong  -D_FORTIFY_SOURCE=2 -Wformat -Wformat-security -Werror=format-security"
+export CPPFLAGS=""
+export CROSS_COMPILE="aarch64-poky-linux-"
+export CXX="aarch64-poky-linux-g++  -mtune=cortex-a55 -fstack-protector-strong  -D_FORTIFY_SOURCE=2 -Wformat -Wformat-security -Werror=format-security --sysroot=${VAR_WS}/recipe-sysroot"
+export CXXFLAGS=" -O2 -pipe -g -feliminate-unused-debug-types -fmacro-prefix-map=${VAR_WS}=/usr/src/debug/linux-renesas/5.10.145-cip17+gitAUTOINC+e61e051bbc-r1                      -fdebug-prefix-map=${VAR_WS}=/usr/src/debug/linux-renesas/5.10.145-cip17+gitAUTOINC+e61e051bbc-r1                      -fdebug-prefix-map=${VAR_WS}/recipe-sysroot=                      -fdebug-prefix-map=${VAR_WS}/recipe-sysroot-native=  -fvisibility-inlines-hidden"
+unset DISTRO
+export FC="aarch64-poky-linux-gfortran  -mtune=cortex-a55 -fstack-protector-strong  -D_FORTIFY_SOURCE=2 -Wformat -Wformat-security -Werror=format-security --sysroot=${VAR_WS}/recipe-sysroot"
+export GIT_CEILING_DIRECTORIES="${VAR_WS}"
+export HOME="/home/ubuntu"
+export KBUILD_BUILD_HOST="oe-host"
+export KBUILD_BUILD_USER="oe-user"
+export KBUILD_BUILD_VERSION="1"
+export LC_ALL="en_US.UTF-8"
+export LD="aarch64-poky-linux-ld --sysroot=${VAR_WS}/recipe-sysroot "
+export LDFLAGS="-Wl,-O1 -Wl,--hash-style=gnu -Wl,--as-needed -fstack-protector-strong -Wl,-z,relro,-z,now"
+export LOGNAME="ubuntu"
+unset MACHINE
+export MAKE="make"
+export NM="aarch64-poky-linux-nm"
+export OBJCOPY="aarch64-poky-linux-objcopy"
+export OBJDUMP="aarch64-poky-linux-objdump"
+export OS="linux"
+export PATH="${EXE_PATH}:${VAR_UNI_NATIVE}/x86_64-linux/usr/bin:${YOCTO_WORK}/poky/scripts:${VAR_WS}/recipe-sysroot-native/usr/bin/aarch64-poky-linux:${VAR_WS}/recipe-sysroot/usr/bin/crossscripts:${VAR_WS}/recipe-sysroot-native/usr/sbin:${VAR_WS}/recipe-sysroot-native/usr/bin:${VAR_WS}/recipe-sysroot-native/sbin:${VAR_WS}/recipe-sysroot-native/bin:${YOCTO_WORK}/poky/bitbake/bin:${YOCTO_WORK}/build/tmp/hosttools"
+export PERL_HASH_SEED="0"
+export PKG_CONFIG_DIR="${VAR_WS}/recipe-sysroot/usr/lib64/pkgconfig"
+export PKG_CONFIG_DISABLE_UNINSTALLED="yes"
+export PKG_CONFIG_LIBDIR="${VAR_WS}/recipe-sysroot/usr/lib64/pkgconfig"
+export PKG_CONFIG_PATH="${VAR_WS}/recipe-sysroot/usr/lib64/pkgconfig:${VAR_WS}/recipe-sysroot/usr/share/pkgconfig:${VAR_WS}/recipe-sysroot//usr/share/pkgconfig"
+export PKG_CONFIG_SYSROOT_DIR="${VAR_WS}/recipe-sysroot"
+export PKG_CONFIG_SYSTEM_INCLUDE_PATH="/usr/include"
+export PKG_CONFIG_SYSTEM_LIBRARY_PATH="/lib64:/usr/lib64"
+export PSEUDO_DISABLED="1"
+export PSEUDO_UNLOAD="1"
+export PYTHONHASHSEED="0"
+export RANLIB="aarch64-poky-linux-gcc-ranlib"
+export READELF="aarch64-poky-linux-readelf"
+unset SHELL
+export SOURCE_DATE_EPOCH="1614392478"
+export SOURCE_DATE_EPOCH_FALLBACK="1302044400"
+export STRINGS="aarch64-poky-linux-strings"
+export STRIP="aarch64-poky-linux-strip"
+unset TARGET_ARCH
+export TERM="xterm"
+export TZ="UTC"
+export UBOOT_ARCH="arm64"
+export USER="ubuntu"
+export base_bindir="/bin"
+export base_libdir="/lib64"
+export base_prefix=""
+export base_sbindir="/sbin"
+export bindir="/usr/bin"
+export datadir="/usr/share"
+export docdir="/usr/share/doc"
+export exec_prefix="/usr"
+export includedir="/usr/include"
+export infodir="/usr/share/info"
+export libdir="/usr/lib64"
+export libexecdir="/usr/libexec"
+export localstatedir="/var"
+export mandir="/usr/share/man"
+export nonarch_base_libdir="/lib"
+export nonarch_libdir="/usr/lib"
+export oldincludedir="/usr/include"
+export prefix="/usr"
+export sbindir="/usr/sbin"
+export servicedir="/srv"
+export sharedstatedir="/com"
+export sysconfdir="/etc"
+export systemd_system_unitdir="/lib/systemd/system"
+export systemd_unitdir="/lib/systemd"
+export systemd_user_unitdir="/usr/lib/systemd/user"
+
+do_kernel_configme() {
+	# translate the kconfig_mode into something that merge_config.sh
+	# understands
+	case alldefconfig in
+		*allnoconfig)
+			config_flags="-n"
+			;;
+		*alldefconfig)
+			config_flags=""
+			;;
+	    *)
+		if [ -f ${VAR_WS}/defconfig ]; then
+			config_flags="-n"
+		fi
+	    ;;
+	esac
+
+	cd ${VAR_WS}
+
+	meta_dir=$(kgit --meta)
+	configs="$(scc --configs -o ${meta_dir})"
+	if [ $? -ne 0 ]; then
+		bberror "${configs}"
+		bbfatal_log "Could not find configuration queue (${meta_dir}/config.queue)"
+	fi
+
+	CFLAGS=" -O2 -pipe -g -feliminate-unused-debug-types -fmacro-prefix-map=${VAR_WS}=/usr/src/debug/linux-renesas/5.10.145-cip17+gitAUTOINC+e61e051bbc-r1                      -fdebug-prefix-map=${VAR_WS}=/usr/src/debug/linux-renesas/5.10.145-cip17+gitAUTOINC+e61e051bbc-r1                      -fdebug-prefix-map=${VAR_WS}/recipe-sysroot=                      -fdebug-prefix-map=${VAR_WS}/recipe-sysroot-native=   --sysroot=${VAR_WS}/recipe-sysroot" HOSTCC="gcc  -isystem${VAR_WS}/recipe-sysroot-native/usr/include -O2 -pipe -L${VAR_WS}/recipe-sysroot-native/usr/lib                         -L${VAR_WS}/recipe-sysroot-native/lib                         -Wl,--enable-new-dtags                         -Wl,-rpath-link,${VAR_WS}/recipe-sysroot-native/usr/lib                         -Wl,-rpath-link,${VAR_WS}/recipe-sysroot-native/lib                         -Wl,-rpath,${VAR_WS}/recipe-sysroot-native/usr/lib                         -Wl,-rpath,${VAR_WS}/recipe-sysroot-native/lib                         -Wl,-O1 -Wl,--allow-shlib-undefined -Wl,--dynamic-linker=${VAR_UNI_NATIVE}/x86_64-linux/lib/ld-linux-x86-64.so.2" HOSTCPP="gcc  -E" CC="aarch64-poky-linux-gcc   -fuse-ld=bfd -fmacro-prefix-map=${VAR_WS}=/usr/src/debug/linux-renesas/5.10.145-cip17+gitAUTOINC+e61e051bbc-r1                      -fdebug-prefix-map=${VAR_WS}=/usr/src/debug/linux-renesas/5.10.145-cip17+gitAUTOINC+e61e051bbc-r1                      -fdebug-prefix-map=${VAR_WS}/recipe-sysroot=                      -fdebug-prefix-map=${VAR_WS}/recipe-sysroot-native=  -fdebug-prefix-map=${VAR_WS}=/usr/src/kernel -fdebug-prefix-map=${YOCTO_WORK}/build/tmp/work-shared/kakip-es1/kernel-build-artifacts=/usr/src/kernel  --sysroot=${VAR_WS}/recipe-sysroot" LD="aarch64-poky-linux-ld.bfd    --sysroot=${VAR_WS}/recipe-sysroot" ARCH=arm64 merge_config.sh -O ${VAR_WS}/linux-kakip_es1-standard-build ${config_flags} ${configs} > ${meta_dir}/cfg/merge_config_build.log 2>&1
+	if [ $? -ne 0 -o ! -f ${VAR_WS}/linux-kakip_es1-standard-build/.config ]; then
+		bberror "Could not generate a .config for kakip-es1-standard"
+		if [ 1 -gt 1 ]; then
+			bbfatal_log "`cat ${meta_dir}/cfg/merge_config_build.log`"
+		else
+			bbfatal_log "Details can be found at: ${VAR_WS}/${meta_dir}/cfg/merge_config_build.log"
+		fi
+	fi
+
+	if [ ! -z "-yocto-standard" ]; then
+		echo "# Global settings from linux recipe" >> ${VAR_WS}/linux-kakip_es1-standard-build/.config
+		echo "CONFIG_LOCALVERSION="\"-yocto-standard\" >> ${VAR_WS}/linux-kakip_es1-standard-build/.config
+	fi
+}
+
+bbfatal_log() {
+	if [ -p ${VAR_WS}/temp/fifo.286148 ] ; then
+		printf "%b\0" "bbfatal_log $*" > ${VAR_WS}/temp/fifo.286148
+	else
+		echo "ERROR: $*"
+	fi
+	exit 1
+}
+
+bberror() {
+	if [ -p ${VAR_WS}/temp/fifo.286148 ] ; then
+		printf "%b\0" "bberror $*" > ${VAR_WS}/temp/fifo.286148
+	else
+		echo "ERROR: $*"
+	fi
+}
+cd "${VAR_WS}/linux-kakip_es1-standard-build"
+do_kernel_configme
+
+# cleanup
+ret=$?
+trap '' 0
+exit $ret
