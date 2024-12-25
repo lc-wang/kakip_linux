@@ -211,6 +211,20 @@
 };
 
 &pinctrl {
+	gpio-line-names = \
+	"", "", "", "","", "", "", "", \
+	"", "", "", "","", "", "", "", \
+	"", "", "", "","", "", "", "", \
+	"", "", "", "","", "", "", "", \
+	"", "", "", "","", "", "", "", \
+	"", "", "", "","", "", "", "", \
+	"", "", "", "","", "", "", "", \
+	"", "GPIO4", "GPIO14", "GPIO15","GPIO5", "", "GPIO2", "GPIO3", \
+	"", "", "GPIO16", "GPIO17","GPIO0", "GPIO1", "", "", \
+	"GPIO10", "GPIO9", "GPIO11", "GPIO8","GPIO7", "GPIO18", "GPIO19", "GPIO21", \
+	"", "", "", "","GPIO12", "GPIO13", "GPIO20", "GPIO6", \
+	"GPIO22", "GPIO24", "GPIO25", "GPIO26","GPIO27", "GPIO23", "", "";
+
 #if (SEL_CAN01_HEADER)
 	can0_pins: can0 {
 		pinmux = <RZG2L_PORT_PINMUX(8, 0, 5)>, /* TX */
