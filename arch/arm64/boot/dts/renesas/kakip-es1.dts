@@ -242,14 +242,6 @@
 		line-name = "sd1_pwr_en";
 	};
 
-	/* cam0_pwr_en is used by Google Coral Camera from CSI20 and CSI21 */
-	cam0_pwr_en {
-		gpio-hog;
-		gpios = <RZG2L_GPIO(11, 2) GPIO_ACTIVE_HIGH>;
-		output-high;
-		line-name = "cam0_pwr_en";
-	};
-
 	sdhi0_pins: sd0 {
 		sd0_mux {
 			pinmux = <RZG2L_PORT_PINMUX(10, 5, 15)>; /* SD0_CD */
