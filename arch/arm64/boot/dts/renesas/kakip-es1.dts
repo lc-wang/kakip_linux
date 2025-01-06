@@ -31,8 +31,6 @@
 		serial1 = &sci4;
 		serial2 = &sci5;
 		mmc0 = &sdhi0;
-		mmc1 = &sdhi1;
-		mmc2 = &sdhi2;
 		ethernet0 = &eth0;
 		ethernet1 = &eth1;
 	};
@@ -141,19 +139,6 @@
 		states = <3300000 0 1800000 1>;
 	};
 
-	vccq_sdhi1: regulator-vccq-sdhi1 {
-		compatible = "regulator-gpio";
-
-		regulator-name = "SDHI1 VccQ";
-		regulator-min-microvolt = <1800000>;
-		regulator-max-microvolt = <3300000>;
-
-		gpios = <&pinctrl RZG2L_GPIO(10, 2) GPIO_ACTIVE_HIGH>;
-
-		gpios-states = <0>;
-		states = <3300000 0 1800000 1>;
-	};
-
 	hdmi-out {
 		compatible = "hdmi-connector";
 		type = "d";
@@ -240,18 +225,6 @@
 		gpios = <RZG2L_GPIO(10, 3) GPIO_ACTIVE_HIGH>;
 		output-high;
 		line-name = "sd1_pwr_en";
-	};
-
-	sdhi0_pins: sd0 {
-		sd0_mux {
-			pinmux = <RZG2L_PORT_PINMUX(10, 5, 15)>; /* SD0_CD */
-		};
-	};
-
-	sdhi1_pins: sd1 {
-		sd1_mux {
-			pinmux = <RZG2L_PORT_PINMUX(9, 4, 14)>; /* SD1_CD */
-		};
 	};
 
 	i2c0_pins: i2c0 {
@@ -361,22 +334,11 @@
 };
 
 &sdhi0 {
-	pinctrl-0 = <&sdhi0_pins>;
-	pinctrl-names = "default";
 	vmmc-supply = <&reg_3p3v>;
 	vqmmc-supply = <&vccq_sdhi0>;
-	bus-width = <4>;
-	status = "okay";
-};
-
-&sdhi1 {
-	pinctrl-0 = <&sdhi1_pins>;
-	pinctrl-names = "default";
-	vmmc-supply = <&reg_3p3v>;
-	vqmmc-supply = <&vccq_sdhi1>;
+	non-removable;
 	bus-width = <4>;
 	sd-uhs-sdr50;
-	sd-uhs-sdr104;
 	status = "okay";
 };
 
