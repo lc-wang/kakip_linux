@@ -10,17 +10,6 @@
 #include <dt-bindings/pinctrl/rzg2l-pinctrl.h>
 #include <dt-bindings/gpio/gpio.h>
 
-/*
- * Jumper setting
- *
- * Please change the jumper setting corresponding to below Macros:
- *
- * SEL_CAN01_HEADER:
- *	1: CAN0/1	0: External Header Pin
- */
-
-#define SEL_CAN01_HEADER	1
-
 / {
 	model = "Kakip ES 1 based on r9a09g057h4";
 	compatible = "renesas,r9a09g057h4-evk-ver1", "renesas,r9a09g057h4", "renesas,r9a09g057";
@@ -210,17 +199,15 @@
 	"", "", "", "","GPIO12", "GPIO13", "GPIO20", "GPIO6", \
 	"GPIO22", "GPIO24", "GPIO25", "GPIO26","GPIO27", "GPIO23", "", "";
 
-#if (SEL_CAN01_HEADER)
 	can0_pins: can0 {
 		pinmux = <RZG2L_PORT_PINMUX(8, 0, 5)>, /* TX */
 			 <RZG2L_PORT_PINMUX(8, 1, 5)>; /* RX */
 	};
 
-	can1_pins: can1 {
-		pinmux = <RZG2L_PORT_PINMUX(8, 2, 5)>, /* TX */
-			 <RZG2L_PORT_PINMUX(8, 3, 5)>; /* RX */
+	can3_pins: can3 {
+		pinmux = <RZG2L_PORT_PINMUX(8, 6, 5)>, /* TX */
+			 <RZG2L_PORT_PINMUX(8, 7, 5)>; /* RX */
 	};
-#endif
 
 	scif0_pins: scif0 {
 		pins =  "SCIF_RXD", "SCIF_TXD";
@@ -310,19 +297,6 @@
 			 <RZG2L_PORT_PINMUX(9, 4, 1)>, /* SSL0 */
 			 <RZG2L_PORT_PINMUX(9, 2, 1)>; /* RSPCK */
 	};
-
-#if (!SEL_CAN01_HEADER)
-	spdif0_pins: spdif0 {
-		pinmux = <RZG2L_PORT_PINMUX(8, 0, 8)>, /* SPDIF0_OUT */
-			 <RZG2L_PORT_PINMUX(8, 1, 8)>; /* SPDIF0_IN */
-	};
-
-	spdif2_pins: spdif2 {
-		pinmux = <RZG2L_PORT_PINMUX(8, 2, 8)>, /* SPDIF2_OUT */
-			 <RZG2L_PORT_PINMUX(8, 3, 8)>; /* SPDIF2_IN */
-	};
-#endif
-
 };
 
 &extal_clk {
@@ -1341,9 +1315,8 @@
 		status = "disable";
 };
 
-#if (SEL_CAN01_HEADER)
 &canfd {
-	pinctrl-0 = <&can0_pins &can1_pins>;
+	pinctrl-0 = <&can0_pins &can3_pins>;
 	pinctrl-names = "default";
 	status = "okay";
 
@@ -1351,11 +1324,10 @@
 		status = "okay";
 	};
 
-	channel1 {
+	channel3 {
 		status = "okay";
 	};
 };
-#endif
 
 &rtc {
 	status = "okay";
