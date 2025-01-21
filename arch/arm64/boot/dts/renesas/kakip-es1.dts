@@ -266,14 +266,6 @@
 
 	usb21_pins: usb21 {
 	};
-
-	spi0_pins: spi0 {
-		pinmux = <RZG2L_PORT_PINMUX(9, 1, 1)>, /* MISO */
-			 <RZG2L_PORT_PINMUX(9, 0, 1)>, /* MOSI */
-			 <RZG2L_PORT_PINMUX(9, 3, 1)>, /* SSL0 */
-			 <RZG2L_PORT_PINMUX(9, 4, 1)>, /* SSL0 */
-			 <RZG2L_PORT_PINMUX(9, 2, 1)>; /* RSPCK */
-	};
 };
 
 &extal_clk {
@@ -599,13 +591,6 @@
     memory-oca-region = <&opencva0>;
 
     status = "okay";
-};
-
-&spi0 {
-	pinctrl-0 = <&spi0_pins>;
-	pinctrl-names = "default";
-
-	status = "okay";
 };
 
 &xspi {
