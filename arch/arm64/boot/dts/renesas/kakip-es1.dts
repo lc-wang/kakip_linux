@@ -17,7 +17,6 @@
 
 	aliases {
 		serial0 = &scif0;
-		serial1 = &sci4;
 		serial2 = &sci5;
 		mmc0 = &sdhi0;
 		ethernet0 = &eth0;
@@ -190,11 +189,6 @@
 		pins =  "SCIF_RXD", "SCIF_TXD";
 	};
 
-	sci4_pins: sci4 {
-		pinmux = <RZG2L_PORT_PINMUX(8, 4, 6)>, /* SCI4_TXD_MOSI_SDA */
-			 <RZG2L_PORT_PINMUX(8, 5, 6)>; /* SCI4_RXD_MISO_SCL */
-	};
-
 	sci5_pins: sci5 {
 		pinmux = <RZG2L_PORT_PINMUX(7, 2, 1)>, /* SCI5_TXD_MOSI_SDA */
 			 <RZG2L_PORT_PINMUX(7, 3, 1)>; /* SCI5_RXD_MISO_SCL */
@@ -284,12 +278,6 @@
 	pinctrl-0 = <&scif0_pins>;
 	pinctrl-names = "default";
 
-	status = "okay";
-};
-
-&sci4 {
-	pinctrl-0 = <&sci4_pins>;
-	pinctrl-names = "default";
 	status = "okay";
 };
 
