@@ -1,0 +1,1 @@
+dtbo-$(CONFIG_ARCH_R9A09G057) += kakip-es1-spi0.dtbo
