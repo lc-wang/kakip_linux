@@ -1,0 +1,34 @@
+/dts-v1/;
+/plugin/;
+
+#include <dt-bindings/pinctrl/rzg2l-pinctrl.h>
+#include <dt-bindings/gpio/gpio.h>
+
+/ {
+
+	fragment@0 {
+		target-path = "/aliases";
+		__overlay__ {
+			serial7 = "/soc/serial@12802800";
+		};
+	};
+
+	fragment@1 {
+		target = <&pinctrl>;
+		__overlay__ {
+			sci7_pins: sci7 {
+				pinmux = <RZG2L_PORT_PINMUX(7, 6, 1)>, /* SCI7_TXD_MOSI_SDA */
+					 <RZG2L_PORT_PINMUX(7, 7, 1)>; /* SCI7_RXD_MISO_SCL */
+			};
+		};
+	};
+
+	fragment@2 {
+		target = <&sci7>;
+		__overlay__ {
+			pinctrl-0 = <&sci7_pins>;
+			pinctrl-names = "default";
+			status = "okay";
+		};
+	};
+};
