@@ -8,13 +8,12 @@
  * Copyright (C) 2024 Linus Walleij
  */
 
-#include <linux/cleanup.h>
-#include <linux/container_of.h>
+#include <linux/stddef.h>
 #include <linux/device.h>
 #include <linux/err.h>
 #include <linux/gpio/consumer.h>
 #include <linux/hrtimer.h>
-#include <linux/math.h>
+#include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/mod_devicetable.h>
 #include <linux/platform_device.h>
@@ -25,6 +24,7 @@
 #include <linux/types.h>
 
 struct pwm_gpio {
+	struct pwm_chip chip;
 	struct hrtimer gpio_timer;
 	struct gpio_desc *gpio;
 	struct pwm_state state;
@@ -37,6 +37,11 @@ struct pwm_gpio {
 	bool running;
 	bool level;
 };
+
+static inline struct pwm_gpio *to_pwm_gpio(struct pwm_chip *chip)
+{
+	return container_of(chip, struct pwm_gpio, chip);
+}
 
 static void pwm_gpio_round(struct pwm_state *dest, const struct pwm_state *src)
 {
@@ -78,8 +83,9 @@ static enum hrtimer_restart pwm_gpio_timer(struct hrtimer *gpio_timer)
 					     gpio_timer);
 	u64 next_toggle;
 	bool new_level;
+	unsigned long flags;
 
-	guard(spinlock_irqsave)(&gpwm->lock);
+	spin_lock_irqsave(&gpwm->lock, flags);
 
 	/* Apply new state at end of current period */
 	if (!gpwm->level && gpwm->changing) {
@@ -95,14 +101,17 @@ static enum hrtimer_restart pwm_gpio_timer(struct hrtimer *gpio_timer)
 		hrtimer_forward(gpio_timer, hrtimer_get_expires(gpio_timer),
 				ns_to_ktime(next_toggle));
 
+	spin_unlock_irqrestore(&gpwm->lock, flags);
+
 	return next_toggle ? HRTIMER_RESTART : HRTIMER_NORESTART;
 }
 
 static int pwm_gpio_apply(struct pwm_chip *chip, struct pwm_device *pwm,
 			  const struct pwm_state *state)
 {
-	struct pwm_gpio *gpwm = pwmchip_get_drvdata(chip);
+	struct pwm_gpio *gpwm = to_pwm_gpio(chip);
 	bool invert = state->polarity == PWM_POLARITY_INVERSED;
+	unsigned long flags;
 
 	if (state->duty_cycle && state->duty_cycle < hrtimer_resolution)
 		return -EINVAL;
@@ -125,7 +134,7 @@ static int pwm_gpio_apply(struct pwm_chip *chip, struct pwm_device *pwm,
 			return ret;
 	}
 
-	guard(spinlock_irqsave)(&gpwm->lock);
+	spin_lock_irqsave(&gpwm->lock, flags);
 
 	if (!state->enabled) {
 		pwm_gpio_round(&gpwm->state, state);
@@ -148,25 +157,29 @@ static int pwm_gpio_apply(struct pwm_chip *chip, struct pwm_device *pwm,
 				      HRTIMER_MODE_REL);
 	}
 
+	spin_unlock_irqrestore(&gpwm->lock, flags);
+
 	return 0;
 }
 
-static int pwm_gpio_get_state(struct pwm_chip *chip, struct pwm_device *pwm,
+static void pwm_gpio_get_state(struct pwm_chip *chip, struct pwm_device *pwm,
 			       struct pwm_state *state)
 {
-	struct pwm_gpio *gpwm = pwmchip_get_drvdata(chip);
+	struct pwm_gpio *gpwm = to_pwm_gpio(chip);
+	unsigned long flags;
 
-	guard(spinlock_irqsave)(&gpwm->lock);
+	spin_lock_irqsave(&gpwm->lock, flags);
 
 	if (gpwm->changing)
 		*state = gpwm->next_state;
 	else
 		*state = gpwm->state;
 
-	return 0;
+	spin_unlock_irqrestore(&gpwm->lock, flags);
 }
 
 static const struct pwm_ops pwm_gpio_ops = {
+	.owner = THIS_MODULE,
 	.apply = pwm_gpio_apply,
 	.get_state = pwm_gpio_get_state,
 };
@@ -181,15 +194,12 @@ static void pwm_gpio_disable_hrtimer(void *data)
 static int pwm_gpio_probe(struct platform_device *pdev)
 {
 	struct device *dev = &pdev->dev;
-	struct pwm_chip *chip;
 	struct pwm_gpio *gpwm;
 	int ret;
 
-	chip = devm_pwmchip_alloc(dev, 1, sizeof(*gpwm));
-	if (IS_ERR(chip))
-		return PTR_ERR(chip);
-
-	gpwm = pwmchip_get_drvdata(chip);
+	gpwm = devm_kzalloc(dev, sizeof(*gpwm), GFP_KERNEL);
+	if (!gpwm)
+		return -ENOMEM;
 
 	spin_lock_init(&gpwm->lock);
 
@@ -204,8 +214,10 @@ static int pwm_gpio_probe(struct platform_device *pdev)
 				     "%pfw: sleeping GPIO not supported\n",
 				     dev_fwnode(dev));
 
-	chip->ops = &pwm_gpio_ops;
-	chip->atomic = true;
+	gpwm->chip.dev = dev;
+	gpwm->chip.ops = &pwm_gpio_ops;
+	gpwm->chip.base = pdev->id;
+	gpwm->chip.npwm = 1;
 
 	hrtimer_init(&gpwm->gpio_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
 	ret = devm_add_action_or_reset(dev, pwm_gpio_disable_hrtimer, gpwm);
@@ -214,11 +226,22 @@ static int pwm_gpio_probe(struct platform_device *pdev)
 
 	gpwm->gpio_timer.function = pwm_gpio_timer;
 
-	ret = pwmchip_add(chip);
+	ret = pwmchip_add(&gpwm->chip);
 	if (ret < 0)
 		return dev_err_probe(dev, ret, "could not add pwmchip\n");
 
+	platform_set_drvdata(pdev, gpwm);
+
 	return 0;
+}
+
+static int pwm_gpio_remove(struct platform_device *pdev)
+{
+	struct pwm_gpio *gpwm = platform_get_drvdata(pdev);
+
+	pwm_disable(&gpwm->chip.pwms[0]);
+
+	return pwmchip_remove(&gpwm->chip);
 }
 
 static const struct of_device_id pwm_gpio_dt_ids[] = {
@@ -233,6 +256,7 @@ static struct platform_driver pwm_gpio_driver = {
 		.of_match_table = pwm_gpio_dt_ids,
 	},
 	.probe = pwm_gpio_probe,
+	.remove = pwm_gpio_remove,
 };
 module_platform_driver(pwm_gpio_driver);
 
