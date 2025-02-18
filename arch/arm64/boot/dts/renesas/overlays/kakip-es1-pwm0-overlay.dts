@@ -1,0 +1,14 @@
+/dts-v1/;
+/plugin/;
+
+#include <dt-bindings/pinctrl/rzg2l-pinctrl.h>
+#include <dt-bindings/gpio/gpio.h>
+
+/ {
+	fragment@0 {
+		target = <&pwm0_gpio>;
+		__overlay__ {
+			status = "okay";
+		};
+	};
+};
