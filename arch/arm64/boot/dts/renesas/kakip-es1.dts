@@ -33,6 +33,13 @@
 		reg = <0x0 0x48000000 0x1 0xF8000000>;
 	};
 
+	pwm0_gpio: pwm0-gpio {
+		compatible = "pwm-gpio";
+		gpios = <&pinctrl RZG2L_GPIO(10, 4) GPIO_ACTIVE_HIGH>;
+		#pwm-cells = <3>;
+		status = "disabled";
+	};
+
 	reserved-memory {
 		#address-cells = <2>;
 		#size-cells = <2>;
