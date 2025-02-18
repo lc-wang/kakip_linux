@@ -40,6 +40,13 @@
 		status = "disabled";
 	};
 
+	pwm1_gpio: pwm1-gpio {
+		compatible = "pwm-gpio";
+		gpios = <&pinctrl RZG2L_GPIO(10, 5) GPIO_ACTIVE_HIGH>;
+		#pwm-cells = <3>;
+		status = "disabled";
+	};
+
 	reserved-memory {
 		#address-cells = <2>;
 		#size-cells = <2>;
