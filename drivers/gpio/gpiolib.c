@@ -693,9 +693,9 @@ int gpiochip_add_data_with_key(struct gpio_chip *gc, void *data,
 #endif
 
 	if (gc->names)
-		ret = gpiochip_set_desc_names(gc);
-	else
 		ret = devprop_gpiochip_set_names(gc);
+	else
+		ret = gpiochip_set_desc_names(gc);
 	if (ret)
 		goto err_remove_from_list;
 
