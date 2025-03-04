@@ -1,0 +1,209 @@
+#!/bin/sh
+KAKIP_WS=`pwd`
+YOCTO_WORK=`pwd`
+VAR_UNINATIVE="${YOCTO_WORK}/sysroots-uninative"
+EXE_PATH="/usr/bin"
+# Emit a useful diagnostic if something fails:
+bb_exit_handler() {
+    ret=$?
+    case $ret in
+    0)  ;;
+    *)  case $BASH_VERSION in
+        "") echo "WARNING: exit code $ret from a shell command.";;
+        *)  echo "WARNING: ${BASH_SOURCE[0]}:${BASH_LINENO[0]} exit $ret from '$BASH_COMMAND'";;
+        esac
+        exit $ret
+    esac
+}
+trap 'bb_exit_handler' 0
+set -e
+export AR="aarch64-poky-linux-gcc-ar"
+export ARCH="arm64"
+export AS="aarch64-poky-linux-as "
+export BUILD_AR="ar"
+export BUILD_AS="as "
+export BUILD_CC="gcc "
+export BUILD_CCLD="gcc "
+export BUILD_CFLAGS="-isystem${KAKIP_WS}/recipe-sysroot-native/usr/include -O2 -pipe"
+export BUILD_CPP="gcc  -E"
+export BUILD_CPPFLAGS="-isystem${KAKIP_WS}/recipe-sysroot-native/usr/include"
+export BUILD_CXX="g++ "
+export BUILD_CXXFLAGS="-isystem${KAKIP_WS}/recipe-sysroot-native/usr/include -O2 -pipe"
+export BUILD_FC="gfortran "
+export BUILD_LD="ld "
+export BUILD_LDFLAGS="-L${KAKIP_WS}/recipe-sysroot-native/usr/lib                         -L${KAKIP_WS}/recipe-sysroot-native/lib                         -Wl,--enable-new-dtags                         -Wl,-rpath-link,${KAKIP_WS}/recipe-sysroot-native/usr/lib                         -Wl,-rpath-link,${KAKIP_WS}/recipe-sysroot-native/lib                         -Wl,-rpath,${KAKIP_WS}/recipe-sysroot-native/usr/lib                         -Wl,-rpath,${KAKIP_WS}/recipe-sysroot-native/lib                         -Wl,-O1 -Wl,--allow-shlib-undefined -Wl,--dynamic-linker=${VAR_UNINATIVE}/x86_64-linux/lib/ld-linux-x86-64.so.2"
+export BUILD_NM="nm"
+export BUILD_RANLIB="ranlib"
+export BUILD_STRIP="strip"
+export CC="aarch64-poky-linux-gcc  -mtune=cortex-a55 -fstack-protector-strong  -D_FORTIFY_SOURCE=2 -Wformat -Wformat-security -Werror=format-security --sysroot=${KAKIP_WS}/recipe-sysroot"
+export CCLD="aarch64-poky-linux-gcc  -mtune=cortex-a55 -fstack-protector-strong  -D_FORTIFY_SOURCE=2 -Wformat -Wformat-security -Werror=format-security --sysroot=${KAKIP_WS}/recipe-sysroot"
+export CFLAGS=" -O2 -pipe -g -feliminate-unused-debug-types -fmacro-prefix-map=${KAKIP_WS}=/usr/src/debug/linux-renesas/5.10.145-cip17+gitAUTOINC+e61e051bbc-r1                      -fdebug-prefix-map=${KAKIP_WS}=/usr/src/debug/linux-renesas/5.10.145-cip17+gitAUTOINC+e61e051bbc-r1                      -fdebug-prefix-map=${KAKIP_WS}/recipe-sysroot=                      -fdebug-prefix-map=${KAKIP_WS}/recipe-sysroot-native= "
+export CMDLINE_CONSOLE="console=ttyS0"
+export CPP="aarch64-poky-linux-gcc -E --sysroot=${KAKIP_WS}/recipe-sysroot  -mtune=cortex-a55 -fstack-protector-strong  -D_FORTIFY_SOURCE=2 -Wformat -Wformat-security -Werror=format-security"
+export CPPFLAGS=""
+export CROSS_COMPILE="aarch64-poky-linux-"
+export CXX="aarch64-poky-linux-g++  -mtune=cortex-a55 -fstack-protector-strong  -D_FORTIFY_SOURCE=2 -Wformat -Wformat-security -Werror=format-security --sysroot=${KAKIP_WS}/recipe-sysroot"
+export CXXFLAGS=" -O2 -pipe -g -feliminate-unused-debug-types -fmacro-prefix-map=${KAKIP_WS}=/usr/src/debug/linux-renesas/5.10.145-cip17+gitAUTOINC+e61e051bbc-r1                      -fdebug-prefix-map=${KAKIP_WS}=/usr/src/debug/linux-renesas/5.10.145-cip17+gitAUTOINC+e61e051bbc-r1                      -fdebug-prefix-map=${KAKIP_WS}/recipe-sysroot=                      -fdebug-prefix-map=${KAKIP_WS}/recipe-sysroot-native=  -fvisibility-inlines-hidden"
+unset DISTRO
+export FC="aarch64-poky-linux-gfortran  -mtune=cortex-a55 -fstack-protector-strong  -D_FORTIFY_SOURCE=2 -Wformat -Wformat-security -Werror=format-security --sysroot=${KAKIP_WS}/recipe-sysroot"
+export GIT_CEILING_DIRECTORIES="${KAKIP_WS}"
+export HOME="/home/ubuntu"
+export KBUILD_BUILD_HOST="oe-host"
+export KBUILD_BUILD_USER="oe-user"
+export KBUILD_BUILD_VERSION="1"
+export LC_ALL="en_US.UTF-8"
+export LD="aarch64-poky-linux-ld --sysroot=${KAKIP_WS}/recipe-sysroot "
+export LDFLAGS="-Wl,-O1 -Wl,--hash-style=gnu -Wl,--as-needed -fstack-protector-strong -Wl,-z,relro,-z,now"
+export LOGNAME="ubuntu"
+unset MACHINE
+export MAKE="make"
+export NM="aarch64-poky-linux-nm"
+export OBJCOPY="aarch64-poky-linux-objcopy"
+export OBJDUMP="aarch64-poky-linux-objdump"
+export OS="linux"
+export PATH="${EXE_PATH}:${VAR_UNINATIVE}/x86_64-linux/usr/bin:${YOCTO_WORK}/poky/scripts:${KAKIP_WS}/recipe-sysroot-native/usr/bin/aarch64-poky-linux:${KAKIP_WS}/recipe-sysroot/usr/bin/crossscripts:${KAKIP_WS}/recipe-sysroot-native/usr/sbin:${KAKIP_WS}/recipe-sysroot-native/usr/bin:${KAKIP_WS}/recipe-sysroot-native/sbin:${KAKIP_WS}/recipe-sysroot-native/bin:${YOCTO_WORK}/poky/bitbake/bin:${YOCTO_WORK}/build/tmp/hosttools"
+export PERL_HASH_SEED="0"
+export PKG_CONFIG_DIR="${KAKIP_WS}/recipe-sysroot/usr/lib64/pkgconfig"
+export PKG_CONFIG_DISABLE_UNINSTALLED="yes"
+export PKG_CONFIG_LIBDIR="${KAKIP_WS}/recipe-sysroot/usr/lib64/pkgconfig"
+export PKG_CONFIG_PATH="${KAKIP_WS}/recipe-sysroot/usr/lib64/pkgconfig:${KAKIP_WS}/recipe-sysroot/usr/share/pkgconfig:${KAKIP_WS}/recipe-sysroot//usr/share/pkgconfig"
+export PKG_CONFIG_SYSROOT_DIR="${KAKIP_WS}/recipe-sysroot"
+export PKG_CONFIG_SYSTEM_INCLUDE_PATH="/usr/include"
+export PKG_CONFIG_SYSTEM_LIBRARY_PATH="/lib64:/usr/lib64"
+export PSEUDO_DISABLED="1"
+export PSEUDO_UNLOAD="1"
+export PYTHONHASHSEED="0"
+export RANLIB="aarch64-poky-linux-gcc-ranlib"
+export READELF="aarch64-poky-linux-readelf"
+unset SHELL
+export SOURCE_DATE_EPOCH="1614392478"
+export SOURCE_DATE_EPOCH_FALLBACK="1302044400"
+export STRINGS="aarch64-poky-linux-strings"
+export STRIP="aarch64-poky-linux-strip"
+unset TARGET_ARCH
+export TERM="xterm"
+export TZ="UTC"
+export UBOOT_ARCH="arm64"
+export USER="ubuntu"
+export base_bindir="/bin"
+export base_libdir="/lib64"
+export base_prefix=""
+export base_sbindir="/sbin"
+export bindir="/usr/bin"
+export datadir="/usr/share"
+export docdir="/usr/share/doc"
+export exec_prefix="/usr"
+export includedir="/usr/include"
+export infodir="/usr/share/info"
+export libdir="/usr/lib64"
+export libexecdir="/usr/libexec"
+export localstatedir="/var"
+export mandir="/usr/share/man"
+export nonarch_base_libdir="/lib"
+export nonarch_libdir="/usr/lib"
+export oldincludedir="/usr/include"
+export prefix="/usr"
+export sbindir="/usr/sbin"
+export servicedir="/srv"
+export sharedstatedir="/com"
+export sysconfdir="/etc"
+export systemd_system_unitdir="/lib/systemd/system"
+export systemd_unitdir="/lib/systemd"
+export systemd_user_unitdir="/usr/lib/systemd/user"
+
+do_configure() {
+    kernel_do_configure
+	if [ "0" = "1" ]; then
+		if echo Image | grep -q 'zImage'; then
+			case "arm64" in
+				"arm")
+				config="${KAKIP_WS}/linux-kakip_es1-standard-build/.config"
+				if ! grep -q 'CONFIG_ARM_APPENDED_DTB=y' $config; then
+					bbwarn 'CONFIG_ARM_APPENDED_DTB is NOT enabled in the kernel. Enabling it to allow the kernel to boot with the Device Tree appended!'
+					sed -i "/CONFIG_ARM_APPENDED_DTB[ =]/d" $config
+					echo "CONFIG_ARM_APPENDED_DTB=y" >> $config
+					echo "# CONFIG_ARM_ATAG_DTB_COMPAT is not set" >> $config
+				fi
+				;;
+				*)
+				bberror "KERNEL_DEVICETREE_BUNDLE is not supported for arm64. Currently it is only supported for 'ARM'."
+			esac
+		else
+			bberror 'The KERNEL_DEVICETREE_BUNDLE requires the KERNEL_IMAGETYPE to contain zImage.'
+		fi
+	fi
+}
+
+kernel_do_configure() {
+	# fixes extra + in /lib/modules/2.6.37+
+	# $ scripts/setlocalversion . => +
+	# $ make kernelversion => 2.6.37
+	# $ make kernelrelease => 2.6.37+
+	touch ${KAKIP_WS}/linux-kakip_es1-standard-build/.scmversion ${KAKIP_WS}/.scmversion
+
+	if [ "${KAKIP_WS}" != "${KAKIP_WS}/linux-kakip_es1-standard-build" ] && [ -f "${KAKIP_WS}/.config" ] && [ ! -f "${KAKIP_WS}/linux-kakip_es1-standard-build/.config" ]; then
+		mv "${KAKIP_WS}/.config" "${KAKIP_WS}/linux-kakip_es1-standard-build/.config"
+	fi
+
+	# Copy defconfig to .config if .config does not exist. This allows
+	# recipes to manage the .config themselves in do_configure_prepend().
+	if [ -f "${KAKIP_WS}/defconfig" ] && [ ! -f "${KAKIP_WS}/linux-kakip_es1-standard-build/.config" ]; then
+		cp "${KAKIP_WS}/defconfig" "${KAKIP_WS}/linux-kakip_es1-standard-build/.config"
+	fi
+
+	oe_runmake_call -C ${KAKIP_WS} CC="aarch64-poky-linux-gcc   -fuse-ld=bfd -fmacro-prefix-map=${KAKIP_WS}=/usr/src/debug/linux-renesas/5.10.145-cip17+gitAUTOINC+e61e051bbc-r1                      -fdebug-prefix-map=${KAKIP_WS}=/usr/src/debug/linux-renesas/5.10.145-cip17+gitAUTOINC+e61e051bbc-r1                      -fdebug-prefix-map=${KAKIP_WS}/recipe-sysroot=                      -fdebug-prefix-map=${KAKIP_WS}/recipe-sysroot-native=  -fdebug-prefix-map=${KAKIP_WS}=/usr/src/kernel -fdebug-prefix-map=${KAKIP_WS}/kernel-build-artifacts=/usr/src/kernel  --sysroot=${KAKIP_WS}/recipe-sysroot" LD="aarch64-poky-linux-ld.bfd    --sysroot=${KAKIP_WS}/recipe-sysroot" O=${KAKIP_WS}/linux-kakip_es1-standard-build olddefconfig || oe_runmake -C ${KAKIP_WS} O=${KAKIP_WS}/linux-kakip_es1-standard-build CC="aarch64-poky-linux-gcc   -fuse-ld=bfd -fmacro-prefix-map=${KAKIP_WS}=/usr/src/debug/linux-renesas/5.10.145-cip17+gitAUTOINC+e61e051bbc-r1                      -fdebug-prefix-map=${KAKIP_WS}=/usr/src/debug/linux-renesas/5.10.145-cip17+gitAUTOINC+e61e051bbc-r1                      -fdebug-prefix-map=${KAKIP_WS}/recipe-sysroot=                      -fdebug-prefix-map=${KAKIP_WS}/recipe-sysroot-native=  -fdebug-prefix-map=${KAKIP_WS}=/usr/src/kernel -fdebug-prefix-map=${KAKIP_WS}/kernel-build-artifacts=/usr/src/kernel  --sysroot=${KAKIP_WS}/recipe-sysroot" LD="aarch64-poky-linux-ld.bfd    --sysroot=${KAKIP_WS}/recipe-sysroot" oldnoconfig
+}
+
+bbwarn() {
+	if [ -p ${KAKIP_WS}/temp/fifo.287788 ] ; then
+		printf "%b\0" "bbwarn $*" > ${KAKIP_WS}/temp/fifo.287788
+	else
+		echo "WARNING: $*"
+	fi
+}
+
+bberror() {
+	if [ -p ${KAKIP_WS}/temp/fifo.287788 ] ; then
+		printf "%b\0" "bberror $*" > ${KAKIP_WS}/temp/fifo.287788
+	else
+		echo "ERROR: $*"
+	fi
+}
+
+oe_runmake_call() {
+	bbnote make  HOSTCC="gcc  -isystem${KAKIP_WS}/recipe-sysroot-native/usr/include -O2 -pipe -L${KAKIP_WS}/recipe-sysroot-native/usr/lib                         -L${KAKIP_WS}/recipe-sysroot-native/lib                         -Wl,--enable-new-dtags                         -Wl,-rpath-link,${KAKIP_WS}/recipe-sysroot-native/usr/lib                         -Wl,-rpath-link,${KAKIP_WS}/recipe-sysroot-native/lib                         -Wl,-rpath,${KAKIP_WS}/recipe-sysroot-native/usr/lib                         -Wl,-rpath,${KAKIP_WS}/recipe-sysroot-native/lib                         -Wl,-O1 -Wl,--allow-shlib-undefined -Wl,--dynamic-linker=${VAR_UNINATIVE}/x86_64-linux/lib/ld-linux-x86-64.so.2" HOSTCPP="gcc  -E"  HOSTCXX="g++  -isystem${KAKIP_WS}/recipe-sysroot-native/usr/include -O2 -pipe -L${KAKIP_WS}/recipe-sysroot-native/usr/lib                         -L${KAKIP_WS}/recipe-sysroot-native/lib                         -Wl,--enable-new-dtags                         -Wl,-rpath-link,${KAKIP_WS}/recipe-sysroot-native/usr/lib                         -Wl,-rpath-link,${KAKIP_WS}/recipe-sysroot-native/lib                         -Wl,-rpath,${KAKIP_WS}/recipe-sysroot-native/usr/lib                         -Wl,-rpath,${KAKIP_WS}/recipe-sysroot-native/lib                         -Wl,-O1 -Wl,--allow-shlib-undefined -Wl,--dynamic-linker=${VAR_UNINATIVE}/x86_64-linux/lib/ld-linux-x86-64.so.2" "$@"
+	make  HOSTCC="gcc  -isystem${KAKIP_WS}/recipe-sysroot-native/usr/include -O2 -pipe -L${KAKIP_WS}/recipe-sysroot-native/usr/lib                         -L${KAKIP_WS}/recipe-sysroot-native/lib                         -Wl,--enable-new-dtags                         -Wl,-rpath-link,${KAKIP_WS}/recipe-sysroot-native/usr/lib                         -Wl,-rpath-link,${KAKIP_WS}/recipe-sysroot-native/lib                         -Wl,-rpath,${KAKIP_WS}/recipe-sysroot-native/usr/lib                         -Wl,-rpath,${KAKIP_WS}/recipe-sysroot-native/lib                         -Wl,-O1 -Wl,--allow-shlib-undefined -Wl,--dynamic-linker=${VAR_UNINATIVE}/x86_64-linux/lib/ld-linux-x86-64.so.2" HOSTCPP="gcc  -E"  HOSTCXX="g++  -isystem${KAKIP_WS}/recipe-sysroot-native/usr/include -O2 -pipe -L${KAKIP_WS}/recipe-sysroot-native/usr/lib                         -L${KAKIP_WS}/recipe-sysroot-native/lib                         -Wl,--enable-new-dtags                         -Wl,-rpath-link,${KAKIP_WS}/recipe-sysroot-native/usr/lib                         -Wl,-rpath-link,${KAKIP_WS}/recipe-sysroot-native/lib                         -Wl,-rpath,${KAKIP_WS}/recipe-sysroot-native/usr/lib                         -Wl,-rpath,${KAKIP_WS}/recipe-sysroot-native/lib                         -Wl,-O1 -Wl,--allow-shlib-undefined -Wl,--dynamic-linker=${VAR_UNINATIVE}/x86_64-linux/lib/ld-linux-x86-64.so.2" "$@"
+}
+
+oe_runmake() {
+	oe_runmake_call "$@" || die "oe_runmake failed"
+}
+
+bbnote() {
+	if [ -p ${KAKIP_WS}/temp/fifo.287788 ] ; then
+		printf "%b\0" "bbnote $*" > ${KAKIP_WS}/temp/fifo.287788
+	else
+		echo "NOTE: $*"
+	fi
+}
+
+die() {
+	bbfatal_log "$*"
+}
+
+bbfatal_log() {
+	if [ -p ${KAKIP_WS}/temp/fifo.287788 ] ; then
+		printf "%b\0" "bbfatal_log $*" > ${KAKIP_WS}/temp/fifo.287788
+	else
+		echo "ERROR: $*"
+	fi
+	exit 1
+}
+
+cd "${KAKIP_WS}/linux-kakip_es1-standard-build"
+do_configure
+
+# cleanup
+ret=$?
+trap '' 0
+exit $ret

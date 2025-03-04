@@ -1,0 +1,1467 @@
+// SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+/*
+ * Device Tree Source for the Kakip ES 1 board
+ *
+ * Copyright (C) 2024 AMATAMA Co.
+ */
+
+/dts-v1/;
+#include "r9a09g057.dtsi"
+#include <dt-bindings/pinctrl/rzg2l-pinctrl.h>
+#include <dt-bindings/gpio/gpio.h>
+
+/*
+ * Jumper setting
+ *
+ * Please change the jumper setting corresponding to below Macros:
+ *
+ * SEL_CAN01_HEADER:
+ *	1: CAN0/1	0: External Header Pin
+ */
+
+#define SEL_CAN01_HEADER	1
+
+/ {
+	model = "Kakip ES 1 based on r9a09g057h4";
+	compatible = "renesas,r9a09g057h4-evk-ver1", "renesas,r9a09g057h4", "renesas,r9a09g057";
+
+	aliases {
+		serial0 = &scif0;
+		serial1 = &sci4;
+		serial2 = &sci5;
+		mmc0 = &sdhi0;
+		mmc1 = &sdhi1;
+		mmc2 = &sdhi2;
+		ethernet0 = &eth0;
+		ethernet1 = &eth1;
+	};
+
+	chosen {
+		bootargs = "ignore_loglevel";
+		stdout-path = "serial0:115200n8";
+	};
+
+	ddr0: memory@48000000 {
+		device_type = "memory";
+		/* first 128MB is reserved for secure area. */
+		reg = <0x0 0x48000000 0x1 0xF8000000>;
+	};
+
+	reserved-memory {
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+
+		global_cma: linux,cma@58000000 {
+			compatible = "shared-dma-pool";
+			linux,cma-default;
+			reusable;
+			reg = <0x0 0x58000000 0x0 0x10000000>;
+		};
+
+		mmp_reserved: linux,multimedia {
+			compatible = "shared-dma-pool";
+			reusable;
+			reg = <0x00000000 0x68000000 0x0 0x20000000>;
+		};
+
+		isp: ISP@90000000 {
+			compatible = "shared-dma-pool";
+			reusable;
+			reg = <0x0 0x90000000 0x0 0x18000000>;
+		};
+
+		image_buf0: image_buf@B0000000 {
+			compatible = "shared-dma-pool";
+			reusable;
+			reg = <0x0 0xB0000000 0x0 0x4000000>;
+			label = "image_buf0";
+		};
+
+		opencva_reserved: OpenCVA@C0000000 {
+			reusable;
+			reg = <0x0 0xC0000000 0x0 0x7D00000>;
+		};
+
+		drp_codec: DRP-Codec@C7D00000 {
+			reusable;
+			reg = <0x0 0xC7D00000 0x0 0x300000>;
+		};
+
+		drp_reserved: DRP-AI@D0000000 {
+			reusable;
+			reg = <0x0 0xD0000000 0x0 0x20000000>;
+		};
+	};
+
+	mmngr {
+		compatible = "renesas,mmngr";
+		memory-region = <&mmp_reserved>;
+	};
+
+	mmngrbuf {
+		compatible = "renesas,mmngrbuf";
+	};
+
+	vspm_if {
+		compatible = "renesas,vspm_if";
+	};
+
+	reg_1p8v: regulator0 {
+		compatible = "regulator-fixed";
+
+		regulator-name = "fixed-1.8V";
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <1800000>;
+		regulator-boot-on;
+		regulator-always-on;
+	};
+
+	reg_3p3v: regulator1 {
+		compatible = "regulator-fixed";
+
+		regulator-name = "fixed-3.3V";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		regulator-boot-on;
+		regulator-always-on;
+	};
+
+	vccq_sdhi0: regulator-vccq-sdhi0 {
+		compatible = "regulator-gpio";
+
+		regulator-name = "SDHI0 VccQ";
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <3300000>;
+
+		gpios = <&pinctrl RZG2L_GPIO(10, 0) GPIO_ACTIVE_HIGH>;
+
+		gpios-states = <0>;
+		states = <3300000 0 1800000 1>;
+	};
+
+	vccq_sdhi1: regulator-vccq-sdhi1 {
+		compatible = "regulator-gpio";
+
+		regulator-name = "SDHI1 VccQ";
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <3300000>;
+
+		gpios = <&pinctrl RZG2L_GPIO(10, 2) GPIO_ACTIVE_HIGH>;
+
+		gpios-states = <0>;
+		states = <3300000 0 1800000 1>;
+	};
+
+	hdmi-out {
+		compatible = "hdmi-connector";
+		type = "d";
+
+		port {
+			hdmi_con_out: endpoint {
+				remote-endpoint = <&adv7535_out>;
+			};
+		};
+	};
+
+	clk_ext_camera: clk_ext_camera {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <24000000>;
+	};
+
+	imx462_vdddo_1v8: 1p8v {
+		compatible = "regulator-fixed";
+		regulator-name = "camera_vdddo";
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <1800000>;
+		regulator-always-on;
+	};
+
+	imx462_vdda_2v8: 2p8v {
+		compatible = "regulator-fixed";
+		regulator-name = "camera_vdda";
+		regulator-min-microvolt = <2800000>;
+		regulator-max-microvolt = <2800000>;
+		regulator-always-on;
+	};
+
+	imx462_vddd_1v5: 1p5v {
+		compatible = "regulator-fixed";
+		regulator-name = "camera_vddd";
+		regulator-min-microvolt = <1500000>;
+		regulator-max-microvolt = <1500000>;
+		regulator-always-on;
+	};
+
+	x1_clk: x1-clock {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <24000000>;
+	};
+
+    udmabuf@0 {
+        compatible = "ikwzm,u-dma-buf";
+        device-name = "udmabuf0";
+        minor-number = <0>;
+        size = <0x4000000>; // 64MiB
+        dma-coherent;
+        memory-region = <&image_buf0>;
+    };
+};
+
+&pinctrl {
+#if (SEL_CAN01_HEADER)
+	can0_pins: can0 {
+		pinmux = <RZG2L_PORT_PINMUX(8, 0, 5)>, /* TX */
+			 <RZG2L_PORT_PINMUX(8, 1, 5)>; /* RX */
+	};
+
+	can1_pins: can1 {
+		pinmux = <RZG2L_PORT_PINMUX(8, 2, 5)>, /* TX */
+			 <RZG2L_PORT_PINMUX(8, 3, 5)>; /* RX */
+	};
+#endif
+
+	scif0_pins: scif0 {
+		pins =  "SCIF_RXD", "SCIF_TXD";
+	};
+
+	sci4_pins: sci4 {
+		pinmux = <RZG2L_PORT_PINMUX(8, 4, 6)>, /* SCI4_TXD_MOSI_SDA */
+			 <RZG2L_PORT_PINMUX(8, 5, 6)>; /* SCI4_RXD_MISO_SCL */
+	};
+
+	sci5_pins: sci5 {
+		pinmux = <RZG2L_PORT_PINMUX(8, 6, 6)>, /* SCI5_TXD_MOSI_SDA */
+			 <RZG2L_PORT_PINMUX(8, 7, 6)>; /* SCI5_RXD_MISO_SCL */
+	};
+
+	sd0_pwr_en {
+		gpio-hog;
+		gpios = <RZG2L_GPIO(10, 1) GPIO_ACTIVE_HIGH>;
+		output-high;
+		line-name = "sd0_pwr_en";
+	};
+
+	sd1_pwr_en {
+		gpio-hog;
+		gpios = <RZG2L_GPIO(10, 3) GPIO_ACTIVE_HIGH>;
+		output-high;
+		line-name = "sd1_pwr_en";
+	};
+
+	/* cam0_pwr_en is used by Google Coral Camera from CSI20 and CSI21 */
+	cam0_pwr_en {
+		gpio-hog;
+		gpios = <RZG2L_GPIO(11, 2) GPIO_ACTIVE_HIGH>;
+		output-high;
+		line-name = "cam0_pwr_en";
+	};
+
+	sdhi0_pins: sd0 {
+		sd0_mux {
+			pinmux = <RZG2L_PORT_PINMUX(10, 5, 15)>; /* SD0_CD */
+		};
+	};
+
+	sdhi1_pins: sd1 {
+		sd1_mux {
+			pinmux = <RZG2L_PORT_PINMUX(9, 4, 14)>; /* SD1_CD */
+		};
+	};
+
+	i2c0_pins: i2c0 {
+		pinmux = <RZG2L_PORT_PINMUX(3, 0, 1)>, /* I2C0_SDA */
+			 <RZG2L_PORT_PINMUX(3, 1, 1)>; /* I2C0_SCL */
+	};
+
+	i2c1_pins: i2c1 {
+		pinmux = <RZG2L_PORT_PINMUX(3, 2, 1)>, /* I2C1_SDA */
+			 <RZG2L_PORT_PINMUX(3, 3, 1)>; /* I2C1_SCL */
+	};
+
+	i2c2_pins: i2c2 {
+		pinmux = <RZG2L_PORT_PINMUX(3, 4, 1)>, /* I2C2_SDA */
+			 <RZG2L_PORT_PINMUX(3, 5, 1)>; /* I2C2_SCL */
+	};
+
+	i2c3_pins: i2c3 {
+		pinmux = <RZG2L_PORT_PINMUX(3, 6, 1)>, /* I2C3_SDA */
+			 <RZG2L_PORT_PINMUX(3, 7, 1)>; /* I2C3_SCL */
+	};
+
+	i2c4_pins: i2c4 {
+		pinmux = <RZG2L_PORT_PINMUX(6, 0, 4)>, /* I2C4_SDA */
+			 <RZG2L_PORT_PINMUX(6, 1, 4)>; /* I2C4_SCL */
+	};
+
+	i2c5_pins: i2c5 {
+		pinmux = <RZG2L_PORT_PINMUX(6, 2, 4)>, /* I2C5_SDA */
+			 <RZG2L_PORT_PINMUX(6, 3, 4)>; /* I2C5_SCL */
+	};
+
+	i2c6_pins: i2c6 {
+	};
+
+	i2c7_pins: i2c7 {
+	};
+
+	i2c8_pins: i2c8 {
+	};
+
+	usb30_pins: usb30 {
+		pinmux = <RZG2L_PORT_PINMUX(6, 4, 15)>; /* VBUS */
+	};
+
+	usb31_pins: usb31 {
+		pinmux = <RZG2L_PORT_PINMUX(6, 6, 15)>; /* VBUS */
+	};
+
+	usb20_pins: usb20 {
+	};
+
+	usb21_pins: usb21 {
+	};
+
+	spi0_pins: spi0 {
+		pinmux = <RZG2L_PORT_PINMUX(9, 1, 1)>, /* MISO */
+			 <RZG2L_PORT_PINMUX(9, 0, 1)>, /* MOSI */
+			 <RZG2L_PORT_PINMUX(9, 3, 1)>, /* SSL0 */
+			 <RZG2L_PORT_PINMUX(9, 4, 1)>, /* SSL0 */
+			 <RZG2L_PORT_PINMUX(9, 2, 1)>; /* RSPCK */
+	};
+
+#if (!SEL_CAN01_HEADER)
+	spdif0_pins: spdif0 {
+		pinmux = <RZG2L_PORT_PINMUX(8, 0, 8)>, /* SPDIF0_OUT */
+			 <RZG2L_PORT_PINMUX(8, 1, 8)>; /* SPDIF0_IN */
+	};
+
+	spdif2_pins: spdif2 {
+		pinmux = <RZG2L_PORT_PINMUX(8, 2, 8)>, /* SPDIF2_OUT */
+			 <RZG2L_PORT_PINMUX(8, 3, 8)>; /* SPDIF2_IN */
+	};
+#endif
+
+};
+
+&extal_clk {
+	clock-frequency = <24000000>;
+};
+
+&ostm2 {
+	status = "okay";
+};
+
+&ostm3 {
+	status = "okay";
+};
+
+&scif0 {
+	pinctrl-0 = <&scif0_pins>;
+	pinctrl-names = "default";
+
+	status = "okay";
+};
+
+&sci4 {
+	pinctrl-0 = <&sci4_pins>;
+	pinctrl-names = "default";
+	status = "okay";
+};
+
+&sci5 {
+	pinctrl-0 = <&sci5_pins>;
+	pinctrl-names = "default";
+	status = "okay";
+};
+
+&sdhi0 {
+	pinctrl-0 = <&sdhi0_pins>;
+	pinctrl-names = "default";
+	vmmc-supply = <&reg_3p3v>;
+	vqmmc-supply = <&vccq_sdhi0>;
+	bus-width = <4>;
+	status = "okay";
+};
+
+&sdhi1 {
+	pinctrl-0 = <&sdhi1_pins>;
+	pinctrl-names = "default";
+	vmmc-supply = <&reg_3p3v>;
+	vqmmc-supply = <&vccq_sdhi1>;
+	bus-width = <4>;
+	sd-uhs-sdr50;
+	sd-uhs-sdr104;
+	status = "okay";
+};
+
+&eth0 {
+	phy-handle = <&phy3>;
+	phy-mode = "rgmii-id";
+	status = "okay";
+
+	mdio {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		phy3: ethernet-phy@3 {
+			compatible = "ethernet-phy-id0022.1640",
+				     "ethernet-phy-ieee802.3-c22";
+			reg = <3>;
+			rxc-skew-psec = <1400>;
+			txc-skew-psec = <1400>;
+			rxdv-skew-psec = <0>;
+			txdv-skew-psec = <0>;
+			rxd0-skew-psec = <0>;
+			rxd1-skew-psec = <0>;
+			rxd2-skew-psec = <0>;
+			rxd3-skew-psec = <0>;
+			txd0-skew-psec = <0>;
+			txd1-skew-psec = <0>;
+			txd2-skew-psec = <0>;
+			txd3-skew-psec = <0>;
+		};
+	};
+};
+
+&eth1 {
+	phy-handle = <&phy1>;
+	phy-mode = "rgmii-id";
+	status = "disabled";
+
+	mdio {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		phy1: ethernet-phy@0 {
+			compatible = "ethernet-phy-id0022.1640",
+				     "ethernet-phy-ieee802.3-c22";
+			reg = <0>;
+			rxc-skew-psec = <1400>;
+			txc-skew-psec = <1400>;
+			rxdv-skew-psec = <0>;
+			txdv-skew-psec = <0>;
+			rxd0-skew-psec = <0>;
+			rxd1-skew-psec = <0>;
+			rxd2-skew-psec = <0>;
+			rxd3-skew-psec = <0>;
+			txd0-skew-psec = <0>;
+			txd1-skew-psec = <0>;
+			txd2-skew-psec = <0>;
+			txd3-skew-psec = <0>;
+		};
+	};
+};
+
+&i2c0 {
+	pinctrl-0 = <&i2c0_pins>;
+	pinctrl-names = "default";
+
+	status = "okay";
+	clock-frequency = <400000>;
+//	pca6408_0: pca6408_0@20
+//		{
+//			compatible = "ti,pca6408";
+//			gpio-controller;
+//			#gpio-cells = <2>;
+//			reg = <0x20>;
+//			status = "okay";
+//		};
+//	imx462_0: camera0@1f {
+//		compatible = "imx462";
+//		reg = <0x1f>;
+//		clock-names = "xclk";
+//		clocks = <&clk_ext_camera>;
+//		clock-frequency = <24000000>;
+//		camera-mipi-clk = <800>; //Not used , but for future purpose
+//		camera-mipi-lanes = <4>; //Not used , but for future purpose
+//		vdddo-supply = <&imx462_vdddo_1v8>;
+//		vdda-supply = <&imx462_vdda_2v8>;
+//		vddd-supply = <&imx462_vddd_1v5>;
+//		/* Set dummy enable gpio */
+//		pwdn-gpios = <&pca6408_0 0 GPIO_ACTIVE_HIGH>;
+//		reset-gpios = <&pca6408_0 1 GPIO_ACTIVE_HIGH>;
+//
+//		port {
+//			imx462_to_csi20: endpoint {
+//				clock-lanes = <0>;
+//				data-lanes = <1 2 3 4>;
+//				// remote-endpoint = <&csi20_in>;
+//			};
+//		};
+//	};
+
+	max9296_dser_b: max9296@48 {
+		compatible = "nvidia,tier4_max9296";
+		reg = <0x48>;
+		status = "okay";
+		csi-mode = "2x4";
+		max-src = <2>;
+		reset-gpios = <&pinctrl RZG2L_GPIO(4, 0) GPIO_ACTIVE_LOW>;
+		// reset-gpios = <&pinctrl RZG2L_GPIO(4, 1) GPIO_ACTIVE_LOW>;
+		// reset-gpios = <&tegra_main_gpio 0x3B 0x0>;
+	};
+
+	max9295_prim@62 {
+		compatible = "nvidia,tier4_max9295";
+		status = "okay";
+		reg = <0x62>;
+		is-prim-ser;
+	};
+	max9295_ser_b_0: max9295_a@42 {
+		compatible = "nvidia,tier4_max9295";
+		status = "okay";
+		reg = <0x42>;
+		nvidia,gmsl-dser-device = <&max9296_dser_b>;
+	};
+
+	max9295_ser_b_1: max9295_b@60 {
+		compatible = "nvidia,tier4_max9295";
+		status = "okay";
+		reg = <0x60>;
+		nvidia,gmsl-dser-device = <&max9296_dser_b>;
+	};
+
+	isx021_b@1c {
+		//cvb
+		status = "okay";
+		def-addr = <0x1a>;
+		// mclk = "extperiph1";
+		mclk = "xclk";
+		// mclk = "sysclk";
+		// mclk = "clk_ext_camera";
+		clocks = <&clk_ext_camera>, <&clk_ext_camera>;
+		// clock-names = "extperiph1", "pllp_grtba";
+		clock-names = "xclk", "pllp_grtba";
+		// clock-names = "sysclk", "pllp_grtba";
+		// clock-names = "clk_ext_camera", "pllp_grtba";
+		nvidia,gmsl-ser-device = <&max9295_ser_b_1>;
+		nvidia,gmsl-dser-device = <&max9296_dser_b>;
+
+		// common modul;e
+		compatible = "nvidia,tier4_isx021";
+		reg = <0x1c>;
+
+		/* Physical dimensions of sensor */
+		physical_w = "15.0";
+		physical_h = "12.5";
+		reg_mux = <0>;
+
+		sensor_model ="isx021";
+
+		fsync-mode = "false";
+
+		distortion-correction = "false";
+
+		auto-exposure = "true";
+
+		/* Defines number of frames to be dropped by driver internally after applying */
+		/* sensor crop settings. Some sensors send corrupt frames after applying */
+		/* crop co-ordinates */
+		post_crop_frame_drop = "0";
+
+		/* Convert Gain to unit of dB (decibel) befor passing to kernel driver */
+		use_decibel_gain = "true";
+
+		/* enable CID_SENSOR_MODE_ID for sensor modes selection */
+		// use_sensor_mode_id = "true";
+		use_sensor_mode_id = "false";
+
+		mode0 {
+			/*mode ISX021_MODE_1920X1280_CROP_30FPS*/
+			mclk_khz = "24000";
+			num_lanes = "4";
+			tegra_sinterface = "serial_a";
+			vc_id = "1";
+			discontinuous_clk = "no";
+			dpcm_enable = "false";
+			cil_settletime = "0";
+			dynamic_pixel_bit_depth = "16";
+			csi_pixel_bit_depth = "16";
+			mode_type = "yuv";
+			pixel_phase = "uyvy";
+
+			active_w = "1920";
+			active_h = "1280";
+			readout_orientation = "0";
+			line_length = "2250";
+			inherent_gain = "1";
+
+			pix_clk_hz = "74250000";
+			serdes_pix_clk_hz = "350000000";    // MIPI CSI clock 1400Mhz
+
+			gain_factor = "10";
+			min_gain_val = "0";                   /* dB */
+			max_gain_val = "300";                 /* dB */
+			step_gain_val = "3";                  /* 0.3 */
+			default_gain = "0";
+			min_hdr_ratio = "1";
+			max_hdr_ratio = "1";
+			framerate_factor = "1000000";
+			min_framerate = "30000000";
+			max_framerate = "30000000";
+			step_framerate = "1";
+			default_framerate = "30000000";
+			exposure_factor = "1000000";
+			min_exp_time = "24";                  /* us 1 line */
+			max_exp_time = "33333";
+			step_exp_time = "1";
+			default_exp_time = "33333";           /* us */
+			embedded_metadata_height = "0";
+		};
+		mode1 {
+			/*mode ISX021_MODE_1920X1281_CROP_30FPS for Front Embbeded data*/ 
+			mclk_khz = "24000";
+			num_lanes = "4";
+			tegra_sinterface = "serial_a";
+			vc_id = "1";
+			discontinuous_clk = "no";
+			dpcm_enable = "false";
+			cil_settletime = "0";
+			dynamic_pixel_bit_depth = "16";
+			csi_pixel_bit_depth = "16";
+			mode_type = "yuv";
+			pixel_phase = "uyvy";
+
+			active_w = "1920";
+			active_h = "1281";
+			readout_orientation = "0";
+			line_length = "2250";
+			inherent_gain = "1";
+
+			pix_clk_hz = "74250000";
+			serdes_pix_clk_hz = "350000000";    // MIPI CSI clock 1400Mhz
+
+			gain_factor = "10";
+			min_gain_val = "0";                   /* dB */
+			max_gain_val = "300";                 /* dB */
+			step_gain_val = "3";                  /* 0.3 */
+			default_gain = "0";
+			min_hdr_ratio = "1";
+			max_hdr_ratio = "1";
+			framerate_factor = "1000000";
+			min_framerate = "30000000";
+			max_framerate = "30000000";
+			step_framerate = "1";
+			default_framerate = "30000000";
+			exposure_factor = "1000000";
+			min_exp_time = "24";                  /* us 1 line */
+			max_exp_time = "33333";
+			step_exp_time = "1";
+			default_exp_time = "33333";           /* us */
+			embedded_metadata_height = "0";
+		};
+		mode2 {
+			/*mode ISX021_MODE_1920X1294_CROP_30FPS  for Rear Embedded data */
+			mclk_khz = "24000";
+			num_lanes = "4";
+			tegra_sinterface = "serial_a";
+			vc_id = "1";
+			discontinuous_clk = "no";
+			dpcm_enable = "false";
+			cil_settletime = "0";
+			dynamic_pixel_bit_depth = "16";
+			csi_pixel_bit_depth = "16";
+			mode_type = "yuv";
+			pixel_phase = "uyvy";
+
+			active_w = "1920";
+			active_h = "1294";
+			readout_orientation = "0";
+			line_length = "2250";
+			inherent_gain = "1";
+
+			pix_clk_hz = "74250000";
+			serdes_pix_clk_hz = "350000000";    // MIPI CSI clock 1400Mhz
+
+			gain_factor = "10";
+			min_gain_val = "0";                   /* dB */
+			max_gain_val = "300";                 /* dB */
+			step_gain_val = "3";                  /* 0.3 */
+			default_gain = "0";
+			min_hdr_ratio = "1";
+			max_hdr_ratio = "1";
+			framerate_factor = "1000000";
+			min_framerate = "30000000";
+			max_framerate = "30000000";
+			step_framerate = "1";
+			default_framerate = "30000000";
+			exposure_factor = "1000000";
+			min_exp_time = "24";                  /* us 1 line */
+			max_exp_time = "33333";
+			step_exp_time = "1";
+			default_exp_time = "33333";           /* us */
+			embedded_metadata_height = "0";
+		};
+		mode3 {
+			/*mode ISX021_MODE_1920X1295_CROP_30FPS for both Front and Rear Embedded data */
+			mclk_khz = "24000";
+			num_lanes = "4";
+			tegra_sinterface = "serial_a";
+			vc_id = "1";
+			discontinuous_clk = "no";
+			dpcm_enable = "false";
+			cil_settletime = "0";
+			dynamic_pixel_bit_depth = "16";
+			csi_pixel_bit_depth = "16";
+			mode_type = "yuv";
+			pixel_phase = "uyvy";
+
+			active_w = "1920";
+			active_h = "1295";
+			readout_orientation = "0";
+			line_length = "2250";
+			inherent_gain = "1";
+
+			pix_clk_hz = "74250000";
+			serdes_pix_clk_hz = "350000000";    // MIPI CSI clock 1400Mhz
+
+			gain_factor = "10";
+			min_gain_val = "0";                   /* dB */
+			max_gain_val = "300";                 /* dB */
+			step_gain_val = "3";                  /* 0.3 */
+			default_gain = "0";
+			min_hdr_ratio = "1";
+			max_hdr_ratio = "1";
+			framerate_factor = "1000000";
+			min_framerate = "30000000";
+			max_framerate = "30000000";
+			step_framerate = "1";
+			default_framerate = "30000000";
+			exposure_factor = "1000000";
+			min_exp_time = "24";                  /* us 1 line */
+			max_exp_time = "33333";
+			step_exp_time = "1";
+			default_exp_time = "33333";           /* us */
+			embedded_metadata_height = "0";
+		};
+
+
+		ports {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			port@0 {
+				reg = <0>;
+				isx021_out1: endpoint {
+					vc-id = <1>;
+					port-index = <0>;
+					bus-width = <4>;
+					clock-lanes = <0>;
+					data-lanes = <1 2 3 4>;
+					remote-endpoint = <&csi_in1>;
+				};
+			};
+		};
+
+		gmsl-link {
+			src-csi-port = "b";           /* Port at which sensor is connected to its serializer device. */
+			dst-csi-port = "a";           /* Destination CSI port on the Jetson side, connected at deserializer. */
+			serdes-csi-link = "b";        /* GMSL link sensor/serializer connected */
+			csi-mode = "1x4";             /*  to sensor CSI mode. */
+			st-vc = <0>;                    /* Sensor source default VC ID: 0 unless overridden by sensor. */
+			vc-id = <1>;                    /* Destination VC ID, assigned to sensor stream by deserializer. */
+			num-lanes = <4>;                /* Number of CSI lanes used. */
+			streams = "ued-u1", "yuv8"; /* Types of streams sensor is streaming. */
+		};
+	};
+
+	isx021_a@1b {
+		//cvb
+		status = "okay";
+		def-addr = <0x1a>;
+		// mclk = "extperiph1";
+		mclk = "xclk";
+		// mclk = "sysclk";
+		// mclk = "clk_ext_camera";
+		clocks = <&clk_ext_camera>, <&clk_ext_camera>;
+		// clock-names = "extperiph1", "pllp_grtba";
+		clock-names = "xclk", "pllp_grtba";
+		// clock-names = "sysclk", "pllp_grtba";
+		// clock-names = "clk_ext_camera", "pllp_grtba";
+		nvidia,gmsl-ser-device = <&max9295_ser_b_0>;
+		nvidia,gmsl-dser-device = <&max9296_dser_b>;
+
+		// common modul;e
+		compatible = "nvidia,tier4_isx021";
+		reg = <0x1b>;
+
+		/* Physical dimensions of sensor */
+		physical_w = "15.0";
+		physical_h = "12.5";
+		reg_mux = <0>;
+
+		sensor_model ="isx021";
+
+		fsync-mode = "false";
+
+		distortion-correction = "false";
+
+		auto-exposure = "true";
+
+		/* Defines number of frames to be dropped by driver internally after applying */
+		/* sensor crop settings. Some sensors send corrupt frames after applying */
+		/* crop co-ordinates */
+		post_crop_frame_drop = "0";
+
+		/* Convert Gain to unit of dB (decibel) befor passing to kernel driver */
+		use_decibel_gain = "true";
+
+		/* enable CID_SENSOR_MODE_ID for sensor modes selection */
+		// use_sensor_mode_id = "true";
+		use_sensor_mode_id = "false";
+
+		mode0 {
+			/*mode ISX021_MODE_1920X1280_CROP_30FPS*/
+			mclk_khz = "24000";
+			num_lanes = "4";
+			tegra_sinterface = "serial_a";
+			vc_id = "0";
+			discontinuous_clk = "no";
+			dpcm_enable = "false";
+			cil_settletime = "0";
+			// dynamic_pixel_bit_depth = "32";
+			// csi_pixel_bit_depth = "32";
+			dynamic_pixel_bit_depth = "16";
+			csi_pixel_bit_depth = "16";
+			// dynamic_pixel_bit_depth = "8";
+			// csi_pixel_bit_depth = "8";
+			mode_type = "yuv";
+			pixel_phase = "uyvy";
+
+			active_w = "1920";
+			active_h = "1280";
+			readout_orientation = "0";
+			line_length = "2250";
+			inherent_gain = "1";
+
+			pix_clk_hz = "74250000";
+			serdes_pix_clk_hz = "350000000";    // MIPI CSI clock 1400Mhz
+
+			gain_factor = "10";
+			min_gain_val = "0";                   /* dB */
+			max_gain_val = "300";                 /* dB */
+			step_gain_val = "3";                  /* 0.3 */
+			default_gain = "0";
+			min_hdr_ratio = "1";
+			max_hdr_ratio = "1";
+			framerate_factor = "1000000";
+			min_framerate = "30000000";
+			max_framerate = "30000000";
+			step_framerate = "1";
+			default_framerate = "30000000";
+			exposure_factor = "1000000";
+			min_exp_time = "24";                  /* us 1 line */
+			max_exp_time = "33333";
+			step_exp_time = "1";
+			default_exp_time = "33333";           /* us */
+			embedded_metadata_height = "0";
+		};
+		mode1 {
+			/*mode ISX021_MODE_1920X1281_CROP_30FPS for Front Embbeded data*/ 
+			mclk_khz = "24000";
+			num_lanes = "4";
+			tegra_sinterface = "serial_a";
+			vc_id = "0";
+			discontinuous_clk = "no";
+			dpcm_enable = "false";
+			cil_settletime = "0";
+			dynamic_pixel_bit_depth = "16";
+			csi_pixel_bit_depth = "16";
+			mode_type = "yuv";
+			pixel_phase = "uyvy";
+
+			active_w = "1920";
+			active_h = "1281";
+			readout_orientation = "0";
+			line_length = "2250";
+			inherent_gain = "1";
+
+			pix_clk_hz = "74250000";
+			serdes_pix_clk_hz = "350000000";    // MIPI CSI clock 1400Mhz
+
+			gain_factor = "10";
+			min_gain_val = "0";                   /* dB */
+			max_gain_val = "300";                 /* dB */
+			step_gain_val = "3";                  /* 0.3 */
+			default_gain = "0";
+			min_hdr_ratio = "1";
+			max_hdr_ratio = "1";
+			framerate_factor = "1000000";
+			min_framerate = "30000000";
+			max_framerate = "30000000";
+			step_framerate = "1";
+			default_framerate = "30000000";
+			exposure_factor = "1000000";
+			min_exp_time = "24";                  /* us 1 line */
+			max_exp_time = "33333";
+			step_exp_time = "1";
+			default_exp_time = "33333";           /* us */
+			embedded_metadata_height = "0";
+		};
+		mode2 {
+			/*mode ISX021_MODE_1920X1294_CROP_30FPS  for Rear Embedded data */
+			mclk_khz = "24000";
+			num_lanes = "4";
+			tegra_sinterface = "serial_a";
+			vc_id = "0";
+			discontinuous_clk = "no";
+			dpcm_enable = "false";
+			cil_settletime = "0";
+			dynamic_pixel_bit_depth = "16";
+			csi_pixel_bit_depth = "16";
+			mode_type = "yuv";
+			pixel_phase = "uyvy";
+
+			active_w = "1920";
+			active_h = "1294";
+			readout_orientation = "0";
+			line_length = "2250";
+			inherent_gain = "1";
+
+			pix_clk_hz = "74250000";
+			serdes_pix_clk_hz = "350000000";    // MIPI CSI clock 1400Mhz
+
+			gain_factor = "10";
+			min_gain_val = "0";                   /* dB */
+			max_gain_val = "300";                 /* dB */
+			step_gain_val = "3";                  /* 0.3 */
+			default_gain = "0";
+			min_hdr_ratio = "1";
+			max_hdr_ratio = "1";
+			framerate_factor = "1000000";
+			min_framerate = "30000000";
+			max_framerate = "30000000";
+			step_framerate = "1";
+			default_framerate = "30000000";
+			exposure_factor = "1000000";
+			min_exp_time = "24";                  /* us 1 line */
+			max_exp_time = "33333";
+			step_exp_time = "1";
+			default_exp_time = "33333";           /* us */
+			embedded_metadata_height = "0";
+		};
+		mode3 {
+			/*mode ISX021_MODE_1920X1295_CROP_30FPS for both Front and Rear Embedded data */
+			mclk_khz = "24000";
+			num_lanes = "4";
+			tegra_sinterface = "serial_a";
+			vc_id = "0";
+			discontinuous_clk = "no";
+			dpcm_enable = "false";
+			cil_settletime = "0";
+			dynamic_pixel_bit_depth = "16";
+			csi_pixel_bit_depth = "16";
+			mode_type = "yuv";
+			pixel_phase = "uyvy";
+
+			active_w = "1920";
+			active_h = "1295";
+			readout_orientation = "0";
+			line_length = "2250";
+			inherent_gain = "1";
+
+			pix_clk_hz = "74250000";
+			serdes_pix_clk_hz = "350000000";    // MIPI CSI clock 1400Mhz
+
+			gain_factor = "10";
+			min_gain_val = "0";                   /* dB */
+			max_gain_val = "300";                 /* dB */
+			step_gain_val = "3";                  /* 0.3 */
+			default_gain = "0";
+			min_hdr_ratio = "1";
+			max_hdr_ratio = "1";
+			framerate_factor = "1000000";
+			min_framerate = "30000000";
+			max_framerate = "30000000";
+			step_framerate = "1";
+			default_framerate = "30000000";
+			exposure_factor = "1000000";
+			min_exp_time = "24";                  /* us 1 line */
+			max_exp_time = "33333";
+			step_exp_time = "1";
+			default_exp_time = "33333";           /* us */
+			embedded_metadata_height = "0";
+		};
+
+
+		ports {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			port@0 {
+				reg = <0>;
+				isx021_out0: endpoint {
+					vc-id = <0>;
+					port-index = <0>;
+					bus-width = <4>;
+					clock-lanes = <0>;
+					data-lanes = <1 2 3 4>;
+					remote-endpoint = <&csi_in0>;
+				};
+			};
+		};
+
+		gmsl-link {
+			src-csi-port = "b";           /* Port at which sensor is connected to its serializer device. */
+			dst-csi-port = "a";           /* Destination CSI port on the Jetson side, connected at deserializer. */
+			serdes-csi-link = "a";        /* GMSL link sensor/serializer connected */
+			csi-mode = "1x4";             /*  to sensor CSI mode. */
+			st-vc = <0>;                    /* Sensor source default VC ID: 0 unless overridden by sensor. */
+			vc-id = <0>;                    /* Destination VC ID, assigned to sensor stream by deserializer. */
+			num-lanes = <4>;                /* Number of CSI lanes used. */
+			streams = "ued-u1", "yuv8"; /* Types of streams sensor is streaming. */
+		};
+	};
+};
+
+&i2c1 {
+	pinctrl-0 = <&i2c1_pins>;
+	pinctrl-names = "default";
+
+	status = "okay";
+	clock-frequency = <400000>;
+	pca6408_1: pca6408_1@20
+		{
+			compatible = "ti,pca6408";
+			gpio-controller;
+			#gpio-cells = <2>;
+			reg = <0x20>;
+			status = "okay";
+		};
+	imx462_1: camera@1f {
+		compatible = "imx462";
+		reg = <0x1f>;
+		clock-names = "xclk";
+		clocks = <&clk_ext_camera>;
+		clock-frequency = <24000000>;
+		camera-mipi-clk = <800>; //Not used , but for future purpose
+		camera-mipi-lanes = <4>; //Not used , but for future purpose
+		vdddo-supply = <&imx462_vdddo_1v8>;
+		vdda-supply = <&imx462_vdda_2v8>;
+		vddd-supply = <&imx462_vddd_1v5>;
+		/* Set dummy enable gpio */
+		pwdn-gpios = <&pca6408_1 0 GPIO_ACTIVE_HIGH>;
+		reset-gpios = <&pca6408_1 1 GPIO_ACTIVE_HIGH>;
+
+		port {
+			imx462_to_csi21: endpoint {
+				clock-lanes = <0>;
+				data-lanes = <1 2 3 4>;
+				// remote-endpoint = <&csi21_in>;
+			};
+		};
+	};
+};
+
+&i2c2 {
+	pinctrl-0 = <&i2c2_pins>;
+	pinctrl-names = "default";
+
+	status = "okay";
+	clock-frequency = <400000>;
+	pca6408_2: pca6408_2@20
+		{
+			compatible = "ti,pca6408";
+			gpio-controller;
+			#gpio-cells = <2>;
+			reg = <0x20>;
+			status = "okay";
+		};
+	imx462_2: camera2@1f {
+		compatible = "imx462";
+		reg = <0x1f>;
+		clock-names = "xclk";
+		clocks = <&clk_ext_camera>;
+		clock-frequency = <24000000>;
+		camera-mipi-clk = <800>; //Not used , but for future purpose
+		camera-mipi-lanes = <4>; //Not used , but for future purpose
+		vdddo-supply = <&imx462_vdddo_1v8>;
+		vdda-supply = <&imx462_vdda_2v8>;
+		vddd-supply = <&imx462_vddd_1v5>;
+		/* Set dummy enable gpio */
+		pwdn-gpios = <&pca6408_2 0 GPIO_ACTIVE_HIGH>;
+		reset-gpios = <&pca6408_2 1 GPIO_ACTIVE_HIGH>;
+
+		port {
+			imx462_to_csi22: endpoint {
+				clock-lanes = <0>;
+				data-lanes = <1 2 3 4>;
+				remote-endpoint = <&csi22_in>;
+			};
+		};
+	};
+};
+
+&i2c3 {
+	pinctrl-0 = <&i2c3_pins>;
+	pinctrl-names = "default";
+
+	status = "okay";
+	clock-frequency = <400000>;
+	pca6408_3: pca6408_3@20
+		{
+			compatible = "ti,pca6408";
+			gpio-controller;
+			#gpio-cells = <2>;
+			reg = <0x20>;
+			status = "okay";
+		};
+ 	imx462_3: camera3@1f {
+ 		compatible = "imx462";
+ 		reg = <0x1f>;
+ 		clock-names = "xclk";
+ 		clocks = <&clk_ext_camera>;
+ 		clock-frequency = <24000000>;
+ 		camera-mipi-clk = <800>; //Not used , but for future purpose
+ 		camera-mipi-lanes = <4>; //Not used , but for future purpose
+ 		vdddo-supply = <&imx462_vdddo_1v8>;
+ 		vdda-supply = <&imx462_vdda_2v8>;
+ 		vddd-supply = <&imx462_vddd_1v5>;
+ 		/* Set dummy enable gpio */
+ 		pwdn-gpios = <&pca6408_3 0 GPIO_ACTIVE_HIGH>;
+ 		reset-gpios = <&pca6408_3 1 GPIO_ACTIVE_HIGH>;
+ 
+ 		port {
+ 			imx462_to_csi23: endpoint {
+ 				clock-lanes = <0>;
+ 				data-lanes = <1 2 3 4>;
+ 				remote-endpoint = <&csi23_in>;
+ 			};
+ 		};
+ 	};
+};
+
+&i2c4 {
+	pinctrl-0 = <&i2c4_pins>;
+	pinctrl-names = "default";
+
+	status = "okay";
+
+	adv7535: hdmi@4d {
+		compatible = "adi,adv7535";
+		reg = <0x3d>;
+
+		avdd-supply = <&reg_1p8v>;
+		dvdd-supply = <&reg_1p8v>;
+		pvdd-supply = <&reg_1p8v>;
+		a2vdd-supply = <&reg_1p8v>;
+		v3p3-supply = <&reg_3p3v>;
+		v1p2-supply = <&reg_1p8v>;
+
+		interrupt-parent = <&pinctrl>;
+		interrupts = <RZG2L_GPIO(7, 1) IRQ_TYPE_LEVEL_LOW>;
+
+		adi,dsi-lanes = <4>;
+
+		ports {
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			port@0 {
+				reg = <0>;
+				adv7535_in: endpoint@0 {
+					remote-endpoint = <&dsi0_out>;
+				};
+			};
+
+			port@1 {
+				reg = <1>;
+				adv7535_out: endpoint@1 {
+				remote-endpoint = <&hdmi_con_out>;
+				};
+			};
+		};
+	};
+};
+
+&i2c5 {
+	pinctrl-0 = <&i2c5_pins>;
+	pinctrl-names = "default";
+
+	status = "okay";
+};
+
+&du {
+	status = "okay";
+};
+
+&dsi0 {
+	status = "okay";
+
+	ports {
+		port@1 {
+			dsi0_out: endpoint {
+				remote-endpoint = <&adv7535_in>;
+				data-lanes = <1 2 3 4>;
+			};
+		};
+	};
+};
+
+&cru0 {
+	status = "okay";
+};
+
+&csi20 {
+	status = "okay";
+
+	ports {
+		port {
+// 			csi20_in: endpoint {
+// 				clock-lanes = <0>;
+// 				data-lanes = <1 2 3 4>;
+// 				remote-endpoint = <&imx462_to_csi20>;
+// 			};
+
+			csi_in0: endpoint {
+				status = "okay";
+ 				clock-lanes = <0>;
+ 				data-lanes = <1 2 3 4>;
+				bus-width = <0x04>;
+				remote-endpoint = <&isx021_out0>;
+			};
+		};
+	};
+};
+
+&cru1 {
+	status = "okay";
+};
+
+&csi21 {
+	status = "okay";
+
+	ports {
+		port {
+//			csi21_in: endpoint {
+//				clock-lanes = <0>;
+//				data-lanes = <1 2 3 4>;
+//				remote-endpoint = <&imx462_to_csi21>;
+//			};
+
+			csi_in1: endpoint {
+				status = "okay";
+				clock-lanes = <0>;
+				data-lanes = <1 2 3 4>;
+				port-index = <0x00>;
+				bus-width = <0x04>;
+				remote-endpoint = <&isx021_out1>;
+			};
+		};
+	};
+};
+
+&cru2 {
+	status = "okay";
+};
+
+&csi22 {
+	status = "okay";
+
+	ports {
+		port {
+			csi22_in: endpoint {
+				clock-lanes = <0>;
+				data-lanes = <1 2 3 4>;
+				remote-endpoint = <&imx462_to_csi22>;
+			};
+
+//			csi_in2: endpoint {
+//				status = "okay";
+//				clock-lanes = <0>;
+//				data-lanes = <1 2 3 4>;
+//				bus-width = <0x04>;
+//				remote-endpoint = <&isx021_out2>;
+//			};
+		};
+	};
+};
+
+&cru3 {
+	status = "okay";
+};
+
+&csi23 {
+	status = "okay";
+
+	ports {
+		port {
+			csi23_in: endpoint {
+				clock-lanes = <0>;
+				// data-lanes = <1 2>;
+				data-lanes = <1 2 3 4>;
+				// remote-endpoint = <&ov5645_to_csi>;
+				remote-endpoint = <&imx462_to_csi23>;
+			};
+
+//			csi_in3: endpoint {
+//				status = "okay";
+//				clock-lanes = <0>;
+//				data-lanes = <1 2 3 4>;
+//				bus-width = <0x04>;
+//				remote-endpoint = <&isx021_out3>;
+//			};
+		};
+	};
+};
+
+&xhci0 {
+		pinctrl-0 = <&usb30_pins>;
+		pinctrl-names = "default";
+
+		memory-region = <&global_cma>;
+		status = "okay";
+};
+
+&xhci1 {
+		pinctrl-0 = <&usb31_pins>;
+		pinctrl-names = "default";
+
+		memory-region = <&global_cma>;
+		status = "okay";
+};
+
+&usb20phyrst {
+	status = "disable";
+};
+
+&usb21phyrst {
+	status = "disable";
+};
+
+&ohci0 {
+		memory-region = <&global_cma>;
+
+		dr_mode = "otg";
+		status = "okay";
+};
+
+&ohci1 {
+		memory-region = <&global_cma>;
+
+		status = "okay";
+};
+
+&ehci0 {
+		memory-region = <&global_cma>;
+
+		dr_mode = "otg";
+		status = "okay";
+};
+
+&ehci1 {
+		memory-region = <&global_cma>;
+
+		status = "okay";
+};
+
+&hsusb {
+		dr_mode = "otg";
+		status = "okay";
+};
+
+&usb2_phy0 {
+		pinctrl-0 = <&usb20_pins>;
+		pinctrl-names = "default";
+
+		status = "disable";
+};
+
+&usb2_phy1 {
+		pinctrl-0 = <&usb21_pins>;
+		pinctrl-names = "default";
+
+		status = "disable";
+};
+
+#if (SEL_CAN01_HEADER)
+&canfd {
+	pinctrl-0 = <&can0_pins &can1_pins>;
+	pinctrl-names = "default";
+	status = "okay";
+
+	channel0 {
+		status = "okay";
+	};
+
+	channel1 {
+		status = "okay";
+	};
+};
+#endif
+
+&rtc {
+	status = "okay";
+};
+
+&wdt1 {
+	status = "okay";
+};
+
+&drp1 {
+    memory-region = <&codec0>;
+    memory-oca-region = <&opencva0>;
+
+    status = "okay";
+};
+
+&spi0 {
+	pinctrl-0 = <&spi0_pins>;
+	pinctrl-names = "default";
+
+	status = "okay";
+};
+
+&xspi {
+	status = "okay";
+
+	flash@0 {
+		compatible = "micron,mt25qu512a", "jedec,spi-nor";
+		reg = <0>;
+		m25p,fast-read;
+		spi-max-frequency = <50000000>;
+		spi-tx-bus-width = <1>;
+		spi-rx-bus-width = <1>;
+
+		partitions {
+			compatible = "fixed-partitions";
+			#address-cells = <1>;
+			#size-cells = <1>;
+
+			partition@000000 {
+				label = "bl2";
+				reg = <0x00000000 0x0001D200>;
+				read-only;
+			};
+
+			partition@01D200 {
+				label = "fip";
+				reg = <0x0001D200 0x001C2E00>;
+				read-only;
+			};
+
+			partition@1E0000 {
+				label = "env";
+				reg = <0x001E0000 0x00020000>;
+				read-only;
+			};
+
+			partition@200000 {
+				label = "test-area";
+				reg = <0x00200000 0x00E00000>;
+			};
+		};
+	};
+};
+
+&pcie0 {
+	/* Map all possible DDR as inbound ranges */
+	dma-ranges = <0x42000000 0 0x40000000 0 0x40000000 0x4 0x00000000>;
+
+	status = "okay";
+};
+
+&drpai0 {
+    memory-region = <&drp_reserved>;
+    image-memory-region = <&image_buf0>;
+    status = "okay";
+};
