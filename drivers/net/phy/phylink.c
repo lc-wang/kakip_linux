@@ -1034,6 +1034,9 @@ static int phylink_bringup_phy(struct phylink *pl, struct phy_device *phy,
 	if (phy_interrupt_is_valid(phy))
 		phy_request_interrupt(phy);
 
+	/* Set the default EEE enable setting to disabled. */
+        phy_write_mmd(phy, MDIO_MMD_AN, MDIO_AN_EEE_ADV, 0);
+
 	return 0;
 }
 
