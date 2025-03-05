@@ -459,556 +459,35 @@
 
 	status = "okay";
 	clock-frequency = <400000>;
-//	pca6408_0: pca6408_0@20
-//		{
-//			compatible = "ti,pca6408";
-//			gpio-controller;
-//			#gpio-cells = <2>;
-//			reg = <0x20>;
-//			status = "okay";
-//		};
-//	imx462_0: camera0@1f {
-//		compatible = "imx462";
-//		reg = <0x1f>;
-//		clock-names = "xclk";
-//		clocks = <&clk_ext_camera>;
-//		clock-frequency = <24000000>;
-//		camera-mipi-clk = <800>; //Not used , but for future purpose
-//		camera-mipi-lanes = <4>; //Not used , but for future purpose
-//		vdddo-supply = <&imx462_vdddo_1v8>;
-//		vdda-supply = <&imx462_vdda_2v8>;
-//		vddd-supply = <&imx462_vddd_1v5>;
-//		/* Set dummy enable gpio */
-//		pwdn-gpios = <&pca6408_0 0 GPIO_ACTIVE_HIGH>;
-//		reset-gpios = <&pca6408_0 1 GPIO_ACTIVE_HIGH>;
-//
-//		port {
-//			imx462_to_csi20: endpoint {
-//				clock-lanes = <0>;
-//				data-lanes = <1 2 3 4>;
-//				// remote-endpoint = <&csi20_in>;
-//			};
-//		};
-//	};
-
-	max9296_dser_b: max9296@48 {
-		compatible = "nvidia,tier4_max9296";
-		reg = <0x48>;
-		status = "okay";
-		csi-mode = "2x4";
-		max-src = <2>;
-		reset-gpios = <&pinctrl RZG2L_GPIO(4, 0) GPIO_ACTIVE_LOW>;
-		// reset-gpios = <&pinctrl RZG2L_GPIO(4, 1) GPIO_ACTIVE_LOW>;
-		// reset-gpios = <&tegra_main_gpio 0x3B 0x0>;
-	};
-
-	max9295_prim@62 {
-		compatible = "nvidia,tier4_max9295";
-		status = "okay";
-		reg = <0x62>;
-		is-prim-ser;
-	};
-	max9295_ser_b_0: max9295_a@42 {
-		compatible = "nvidia,tier4_max9295";
-		status = "okay";
-		reg = <0x42>;
-		nvidia,gmsl-dser-device = <&max9296_dser_b>;
-	};
-
-	max9295_ser_b_1: max9295_b@60 {
-		compatible = "nvidia,tier4_max9295";
-		status = "okay";
-		reg = <0x60>;
-		nvidia,gmsl-dser-device = <&max9296_dser_b>;
-	};
-
-	isx021_b@1c {
-		//cvb
-		status = "okay";
-		def-addr = <0x1a>;
-		// mclk = "extperiph1";
-		mclk = "xclk";
-		// mclk = "sysclk";
-		// mclk = "clk_ext_camera";
-		clocks = <&clk_ext_camera>, <&clk_ext_camera>;
-		// clock-names = "extperiph1", "pllp_grtba";
-		clock-names = "xclk", "pllp_grtba";
-		// clock-names = "sysclk", "pllp_grtba";
-		// clock-names = "clk_ext_camera", "pllp_grtba";
-		nvidia,gmsl-ser-device = <&max9295_ser_b_1>;
-		nvidia,gmsl-dser-device = <&max9296_dser_b>;
-
-		// common modul;e
-		compatible = "nvidia,tier4_isx021";
-		reg = <0x1c>;
-
-		/* Physical dimensions of sensor */
-		physical_w = "15.0";
-		physical_h = "12.5";
-		reg_mux = <0>;
-
-		sensor_model ="isx021";
-
-		fsync-mode = "false";
-
-		distortion-correction = "false";
-
-		auto-exposure = "true";
-
-		/* Defines number of frames to be dropped by driver internally after applying */
-		/* sensor crop settings. Some sensors send corrupt frames after applying */
-		/* crop co-ordinates */
-		post_crop_frame_drop = "0";
-
-		/* Convert Gain to unit of dB (decibel) befor passing to kernel driver */
-		use_decibel_gain = "true";
-
-		/* enable CID_SENSOR_MODE_ID for sensor modes selection */
-		// use_sensor_mode_id = "true";
-		use_sensor_mode_id = "false";
-
-		mode0 {
-			/*mode ISX021_MODE_1920X1280_CROP_30FPS*/
-			mclk_khz = "24000";
-			num_lanes = "4";
-			tegra_sinterface = "serial_a";
-			vc_id = "1";
-			discontinuous_clk = "no";
-			dpcm_enable = "false";
-			cil_settletime = "0";
-			dynamic_pixel_bit_depth = "16";
-			csi_pixel_bit_depth = "16";
-			mode_type = "yuv";
-			pixel_phase = "uyvy";
-
-			active_w = "1920";
-			active_h = "1280";
-			readout_orientation = "0";
-			line_length = "2250";
-			inherent_gain = "1";
-
-			pix_clk_hz = "74250000";
-			serdes_pix_clk_hz = "350000000";    // MIPI CSI clock 1400Mhz
-
-			gain_factor = "10";
-			min_gain_val = "0";                   /* dB */
-			max_gain_val = "300";                 /* dB */
-			step_gain_val = "3";                  /* 0.3 */
-			default_gain = "0";
-			min_hdr_ratio = "1";
-			max_hdr_ratio = "1";
-			framerate_factor = "1000000";
-			min_framerate = "30000000";
-			max_framerate = "30000000";
-			step_framerate = "1";
-			default_framerate = "30000000";
-			exposure_factor = "1000000";
-			min_exp_time = "24";                  /* us 1 line */
-			max_exp_time = "33333";
-			step_exp_time = "1";
-			default_exp_time = "33333";           /* us */
-			embedded_metadata_height = "0";
+	pca6408_0: pca6408_0@20
+		{
+			compatible = "ti,pca6408";
+			gpio-controller;
+			#gpio-cells = <2>;
+			reg = <0x20>;
+			status = "okay";
 		};
-		mode1 {
-			/*mode ISX021_MODE_1920X1281_CROP_30FPS for Front Embbeded data*/ 
-			mclk_khz = "24000";
-			num_lanes = "4";
-			tegra_sinterface = "serial_a";
-			vc_id = "1";
-			discontinuous_clk = "no";
-			dpcm_enable = "false";
-			cil_settletime = "0";
-			dynamic_pixel_bit_depth = "16";
-			csi_pixel_bit_depth = "16";
-			mode_type = "yuv";
-			pixel_phase = "uyvy";
+	imx462_0: camera0@1f {
+		compatible = "imx462";
+		reg = <0x1f>;
+		clock-names = "xclk";
+		clocks = <&clk_ext_camera>;
+		clock-frequency = <24000000>;
+		camera-mipi-clk = <800>; //Not used , but for future purpose
+		camera-mipi-lanes = <4>; //Not used , but for future purpose
+		vdddo-supply = <&imx462_vdddo_1v8>;
+		vdda-supply = <&imx462_vdda_2v8>;
+		vddd-supply = <&imx462_vddd_1v5>;
+		/* Set dummy enable gpio */
+		pwdn-gpios = <&pca6408_0 0 GPIO_ACTIVE_HIGH>;
+		reset-gpios = <&pca6408_0 1 GPIO_ACTIVE_HIGH>;
 
-			active_w = "1920";
-			active_h = "1281";
-			readout_orientation = "0";
-			line_length = "2250";
-			inherent_gain = "1";
-
-			pix_clk_hz = "74250000";
-			serdes_pix_clk_hz = "350000000";    // MIPI CSI clock 1400Mhz
-
-			gain_factor = "10";
-			min_gain_val = "0";                   /* dB */
-			max_gain_val = "300";                 /* dB */
-			step_gain_val = "3";                  /* 0.3 */
-			default_gain = "0";
-			min_hdr_ratio = "1";
-			max_hdr_ratio = "1";
-			framerate_factor = "1000000";
-			min_framerate = "30000000";
-			max_framerate = "30000000";
-			step_framerate = "1";
-			default_framerate = "30000000";
-			exposure_factor = "1000000";
-			min_exp_time = "24";                  /* us 1 line */
-			max_exp_time = "33333";
-			step_exp_time = "1";
-			default_exp_time = "33333";           /* us */
-			embedded_metadata_height = "0";
-		};
-		mode2 {
-			/*mode ISX021_MODE_1920X1294_CROP_30FPS  for Rear Embedded data */
-			mclk_khz = "24000";
-			num_lanes = "4";
-			tegra_sinterface = "serial_a";
-			vc_id = "1";
-			discontinuous_clk = "no";
-			dpcm_enable = "false";
-			cil_settletime = "0";
-			dynamic_pixel_bit_depth = "16";
-			csi_pixel_bit_depth = "16";
-			mode_type = "yuv";
-			pixel_phase = "uyvy";
-
-			active_w = "1920";
-			active_h = "1294";
-			readout_orientation = "0";
-			line_length = "2250";
-			inherent_gain = "1";
-
-			pix_clk_hz = "74250000";
-			serdes_pix_clk_hz = "350000000";    // MIPI CSI clock 1400Mhz
-
-			gain_factor = "10";
-			min_gain_val = "0";                   /* dB */
-			max_gain_val = "300";                 /* dB */
-			step_gain_val = "3";                  /* 0.3 */
-			default_gain = "0";
-			min_hdr_ratio = "1";
-			max_hdr_ratio = "1";
-			framerate_factor = "1000000";
-			min_framerate = "30000000";
-			max_framerate = "30000000";
-			step_framerate = "1";
-			default_framerate = "30000000";
-			exposure_factor = "1000000";
-			min_exp_time = "24";                  /* us 1 line */
-			max_exp_time = "33333";
-			step_exp_time = "1";
-			default_exp_time = "33333";           /* us */
-			embedded_metadata_height = "0";
-		};
-		mode3 {
-			/*mode ISX021_MODE_1920X1295_CROP_30FPS for both Front and Rear Embedded data */
-			mclk_khz = "24000";
-			num_lanes = "4";
-			tegra_sinterface = "serial_a";
-			vc_id = "1";
-			discontinuous_clk = "no";
-			dpcm_enable = "false";
-			cil_settletime = "0";
-			dynamic_pixel_bit_depth = "16";
-			csi_pixel_bit_depth = "16";
-			mode_type = "yuv";
-			pixel_phase = "uyvy";
-
-			active_w = "1920";
-			active_h = "1295";
-			readout_orientation = "0";
-			line_length = "2250";
-			inherent_gain = "1";
-
-			pix_clk_hz = "74250000";
-			serdes_pix_clk_hz = "350000000";    // MIPI CSI clock 1400Mhz
-
-			gain_factor = "10";
-			min_gain_val = "0";                   /* dB */
-			max_gain_val = "300";                 /* dB */
-			step_gain_val = "3";                  /* 0.3 */
-			default_gain = "0";
-			min_hdr_ratio = "1";
-			max_hdr_ratio = "1";
-			framerate_factor = "1000000";
-			min_framerate = "30000000";
-			max_framerate = "30000000";
-			step_framerate = "1";
-			default_framerate = "30000000";
-			exposure_factor = "1000000";
-			min_exp_time = "24";                  /* us 1 line */
-			max_exp_time = "33333";
-			step_exp_time = "1";
-			default_exp_time = "33333";           /* us */
-			embedded_metadata_height = "0";
-		};
-
-
-		ports {
-			#address-cells = <1>;
-			#size-cells = <0>;
-			port@0 {
-				reg = <0>;
-				isx021_out1: endpoint {
-					vc-id = <1>;
-					port-index = <0>;
-					bus-width = <4>;
-					clock-lanes = <0>;
-					data-lanes = <1 2 3 4>;
-					remote-endpoint = <&csi_in1>;
-				};
+		port {
+			imx462_to_csi20: endpoint {
+				clock-lanes = <0>;
+				data-lanes = <1 2 3 4>;
+				remote-endpoint = <&csi20_in>;
 			};
-		};
-
-		gmsl-link {
-			src-csi-port = "b";           /* Port at which sensor is connected to its serializer device. */
-			dst-csi-port = "a";           /* Destination CSI port on the Jetson side, connected at deserializer. */
-			serdes-csi-link = "b";        /* GMSL link sensor/serializer connected */
-			csi-mode = "1x4";             /*  to sensor CSI mode. */
-			st-vc = <0>;                    /* Sensor source default VC ID: 0 unless overridden by sensor. */
-			vc-id = <1>;                    /* Destination VC ID, assigned to sensor stream by deserializer. */
-			num-lanes = <4>;                /* Number of CSI lanes used. */
-			streams = "ued-u1", "yuv8"; /* Types of streams sensor is streaming. */
-		};
-	};
-
-	isx021_a@1b {
-		//cvb
-		status = "okay";
-		def-addr = <0x1a>;
-		// mclk = "extperiph1";
-		mclk = "xclk";
-		// mclk = "sysclk";
-		// mclk = "clk_ext_camera";
-		clocks = <&clk_ext_camera>, <&clk_ext_camera>;
-		// clock-names = "extperiph1", "pllp_grtba";
-		clock-names = "xclk", "pllp_grtba";
-		// clock-names = "sysclk", "pllp_grtba";
-		// clock-names = "clk_ext_camera", "pllp_grtba";
-		nvidia,gmsl-ser-device = <&max9295_ser_b_0>;
-		nvidia,gmsl-dser-device = <&max9296_dser_b>;
-
-		// common modul;e
-		compatible = "nvidia,tier4_isx021";
-		reg = <0x1b>;
-
-		/* Physical dimensions of sensor */
-		physical_w = "15.0";
-		physical_h = "12.5";
-		reg_mux = <0>;
-
-		sensor_model ="isx021";
-
-		fsync-mode = "false";
-
-		distortion-correction = "false";
-
-		auto-exposure = "true";
-
-		/* Defines number of frames to be dropped by driver internally after applying */
-		/* sensor crop settings. Some sensors send corrupt frames after applying */
-		/* crop co-ordinates */
-		post_crop_frame_drop = "0";
-
-		/* Convert Gain to unit of dB (decibel) befor passing to kernel driver */
-		use_decibel_gain = "true";
-
-		/* enable CID_SENSOR_MODE_ID for sensor modes selection */
-		// use_sensor_mode_id = "true";
-		use_sensor_mode_id = "false";
-
-		mode0 {
-			/*mode ISX021_MODE_1920X1280_CROP_30FPS*/
-			mclk_khz = "24000";
-			num_lanes = "4";
-			tegra_sinterface = "serial_a";
-			vc_id = "0";
-			discontinuous_clk = "no";
-			dpcm_enable = "false";
-			cil_settletime = "0";
-			// dynamic_pixel_bit_depth = "32";
-			// csi_pixel_bit_depth = "32";
-			dynamic_pixel_bit_depth = "16";
-			csi_pixel_bit_depth = "16";
-			// dynamic_pixel_bit_depth = "8";
-			// csi_pixel_bit_depth = "8";
-			mode_type = "yuv";
-			pixel_phase = "uyvy";
-
-			active_w = "1920";
-			active_h = "1280";
-			readout_orientation = "0";
-			line_length = "2250";
-			inherent_gain = "1";
-
-			pix_clk_hz = "74250000";
-			serdes_pix_clk_hz = "350000000";    // MIPI CSI clock 1400Mhz
-
-			gain_factor = "10";
-			min_gain_val = "0";                   /* dB */
-			max_gain_val = "300";                 /* dB */
-			step_gain_val = "3";                  /* 0.3 */
-			default_gain = "0";
-			min_hdr_ratio = "1";
-			max_hdr_ratio = "1";
-			framerate_factor = "1000000";
-			min_framerate = "30000000";
-			max_framerate = "30000000";
-			step_framerate = "1";
-			default_framerate = "30000000";
-			exposure_factor = "1000000";
-			min_exp_time = "24";                  /* us 1 line */
-			max_exp_time = "33333";
-			step_exp_time = "1";
-			default_exp_time = "33333";           /* us */
-			embedded_metadata_height = "0";
-		};
-		mode1 {
-			/*mode ISX021_MODE_1920X1281_CROP_30FPS for Front Embbeded data*/ 
-			mclk_khz = "24000";
-			num_lanes = "4";
-			tegra_sinterface = "serial_a";
-			vc_id = "0";
-			discontinuous_clk = "no";
-			dpcm_enable = "false";
-			cil_settletime = "0";
-			dynamic_pixel_bit_depth = "16";
-			csi_pixel_bit_depth = "16";
-			mode_type = "yuv";
-			pixel_phase = "uyvy";
-
-			active_w = "1920";
-			active_h = "1281";
-			readout_orientation = "0";
-			line_length = "2250";
-			inherent_gain = "1";
-
-			pix_clk_hz = "74250000";
-			serdes_pix_clk_hz = "350000000";    // MIPI CSI clock 1400Mhz
-
-			gain_factor = "10";
-			min_gain_val = "0";                   /* dB */
-			max_gain_val = "300";                 /* dB */
-			step_gain_val = "3";                  /* 0.3 */
-			default_gain = "0";
-			min_hdr_ratio = "1";
-			max_hdr_ratio = "1";
-			framerate_factor = "1000000";
-			min_framerate = "30000000";
-			max_framerate = "30000000";
-			step_framerate = "1";
-			default_framerate = "30000000";
-			exposure_factor = "1000000";
-			min_exp_time = "24";                  /* us 1 line */
-			max_exp_time = "33333";
-			step_exp_time = "1";
-			default_exp_time = "33333";           /* us */
-			embedded_metadata_height = "0";
-		};
-		mode2 {
-			/*mode ISX021_MODE_1920X1294_CROP_30FPS  for Rear Embedded data */
-			mclk_khz = "24000";
-			num_lanes = "4";
-			tegra_sinterface = "serial_a";
-			vc_id = "0";
-			discontinuous_clk = "no";
-			dpcm_enable = "false";
-			cil_settletime = "0";
-			dynamic_pixel_bit_depth = "16";
-			csi_pixel_bit_depth = "16";
-			mode_type = "yuv";
-			pixel_phase = "uyvy";
-
-			active_w = "1920";
-			active_h = "1294";
-			readout_orientation = "0";
-			line_length = "2250";
-			inherent_gain = "1";
-
-			pix_clk_hz = "74250000";
-			serdes_pix_clk_hz = "350000000";    // MIPI CSI clock 1400Mhz
-
-			gain_factor = "10";
-			min_gain_val = "0";                   /* dB */
-			max_gain_val = "300";                 /* dB */
-			step_gain_val = "3";                  /* 0.3 */
-			default_gain = "0";
-			min_hdr_ratio = "1";
-			max_hdr_ratio = "1";
-			framerate_factor = "1000000";
-			min_framerate = "30000000";
-			max_framerate = "30000000";
-			step_framerate = "1";
-			default_framerate = "30000000";
-			exposure_factor = "1000000";
-			min_exp_time = "24";                  /* us 1 line */
-			max_exp_time = "33333";
-			step_exp_time = "1";
-			default_exp_time = "33333";           /* us */
-			embedded_metadata_height = "0";
-		};
-		mode3 {
-			/*mode ISX021_MODE_1920X1295_CROP_30FPS for both Front and Rear Embedded data */
-			mclk_khz = "24000";
-			num_lanes = "4";
-			tegra_sinterface = "serial_a";
-			vc_id = "0";
-			discontinuous_clk = "no";
-			dpcm_enable = "false";
-			cil_settletime = "0";
-			dynamic_pixel_bit_depth = "16";
-			csi_pixel_bit_depth = "16";
-			mode_type = "yuv";
-			pixel_phase = "uyvy";
-
-			active_w = "1920";
-			active_h = "1295";
-			readout_orientation = "0";
-			line_length = "2250";
-			inherent_gain = "1";
-
-			pix_clk_hz = "74250000";
-			serdes_pix_clk_hz = "350000000";    // MIPI CSI clock 1400Mhz
-
-			gain_factor = "10";
-			min_gain_val = "0";                   /* dB */
-			max_gain_val = "300";                 /* dB */
-			step_gain_val = "3";                  /* 0.3 */
-			default_gain = "0";
-			min_hdr_ratio = "1";
-			max_hdr_ratio = "1";
-			framerate_factor = "1000000";
-			min_framerate = "30000000";
-			max_framerate = "30000000";
-			step_framerate = "1";
-			default_framerate = "30000000";
-			exposure_factor = "1000000";
-			min_exp_time = "24";                  /* us 1 line */
-			max_exp_time = "33333";
-			step_exp_time = "1";
-			default_exp_time = "33333";           /* us */
-			embedded_metadata_height = "0";
-		};
-
-
-		ports {
-			#address-cells = <1>;
-			#size-cells = <0>;
-			port@0 {
-				reg = <0>;
-				isx021_out0: endpoint {
-					vc-id = <0>;
-					port-index = <0>;
-					bus-width = <4>;
-					clock-lanes = <0>;
-					data-lanes = <1 2 3 4>;
-					remote-endpoint = <&csi_in0>;
-				};
-			};
-		};
-
-		gmsl-link {
-			src-csi-port = "b";           /* Port at which sensor is connected to its serializer device. */
-			dst-csi-port = "a";           /* Destination CSI port on the Jetson side, connected at deserializer. */
-			serdes-csi-link = "a";        /* GMSL link sensor/serializer connected */
-			csi-mode = "1x4";             /*  to sensor CSI mode. */
-			st-vc = <0>;                    /* Sensor source default VC ID: 0 unless overridden by sensor. */
-			vc-id = <0>;                    /* Destination VC ID, assigned to sensor stream by deserializer. */
-			num-lanes = <4>;                /* Number of CSI lanes used. */
-			streams = "ued-u1", "yuv8"; /* Types of streams sensor is streaming. */
 		};
 	};
 };
@@ -1046,7 +525,7 @@
 			imx462_to_csi21: endpoint {
 				clock-lanes = <0>;
 				data-lanes = <1 2 3 4>;
-				// remote-endpoint = <&csi21_in>;
+				remote-endpoint = <&csi21_in>;
 			};
 		};
 	};
@@ -1105,29 +584,29 @@
 			reg = <0x20>;
 			status = "okay";
 		};
- 	imx462_3: camera3@1f {
- 		compatible = "imx462";
- 		reg = <0x1f>;
- 		clock-names = "xclk";
- 		clocks = <&clk_ext_camera>;
- 		clock-frequency = <24000000>;
- 		camera-mipi-clk = <800>; //Not used , but for future purpose
- 		camera-mipi-lanes = <4>; //Not used , but for future purpose
- 		vdddo-supply = <&imx462_vdddo_1v8>;
- 		vdda-supply = <&imx462_vdda_2v8>;
- 		vddd-supply = <&imx462_vddd_1v5>;
- 		/* Set dummy enable gpio */
- 		pwdn-gpios = <&pca6408_3 0 GPIO_ACTIVE_HIGH>;
- 		reset-gpios = <&pca6408_3 1 GPIO_ACTIVE_HIGH>;
- 
- 		port {
- 			imx462_to_csi23: endpoint {
- 				clock-lanes = <0>;
- 				data-lanes = <1 2 3 4>;
- 				remote-endpoint = <&csi23_in>;
- 			};
- 		};
- 	};
+	imx462_3: camera3@1f {
+		compatible = "imx462";
+		reg = <0x1f>;
+		clock-names = "xclk";
+		clocks = <&clk_ext_camera>;
+		clock-frequency = <24000000>;
+		camera-mipi-clk = <800>; //Not used , but for future purpose
+		camera-mipi-lanes = <4>; //Not used , but for future purpose
+		vdddo-supply = <&imx462_vdddo_1v8>;
+		vdda-supply = <&imx462_vdda_2v8>;
+		vddd-supply = <&imx462_vddd_1v5>;
+		/* Set dummy enable gpio */
+		pwdn-gpios = <&pca6408_3 0 GPIO_ACTIVE_HIGH>;
+		reset-gpios = <&pca6408_3 1 GPIO_ACTIVE_HIGH>;
+
+		port {
+			imx462_to_csi23: endpoint {
+				clock-lanes = <0>;
+				data-lanes = <1 2 3 4>;
+				remote-endpoint = <&csi23_in>;
+			};
+		};
+	};
 };
 
 &i2c4 {
@@ -1206,18 +685,10 @@
 
 	ports {
 		port {
-// 			csi20_in: endpoint {
-// 				clock-lanes = <0>;
-// 				data-lanes = <1 2 3 4>;
-// 				remote-endpoint = <&imx462_to_csi20>;
-// 			};
-
-			csi_in0: endpoint {
-				status = "okay";
- 				clock-lanes = <0>;
- 				data-lanes = <1 2 3 4>;
-				bus-width = <0x04>;
-				remote-endpoint = <&isx021_out0>;
+			csi20_in: endpoint {
+				clock-lanes = <0>;
+				data-lanes = <1 2 3 4>;
+				remote-endpoint = <&imx462_to_csi20>;
 			};
 		};
 	};
@@ -1232,19 +703,10 @@
 
 	ports {
 		port {
-//			csi21_in: endpoint {
-//				clock-lanes = <0>;
-//				data-lanes = <1 2 3 4>;
-//				remote-endpoint = <&imx462_to_csi21>;
-//			};
-
-			csi_in1: endpoint {
-				status = "okay";
+			csi21_in: endpoint {
 				clock-lanes = <0>;
 				data-lanes = <1 2 3 4>;
-				port-index = <0x00>;
-				bus-width = <0x04>;
-				remote-endpoint = <&isx021_out1>;
+				remote-endpoint = <&imx462_to_csi21>;
 			};
 		};
 	};
@@ -1264,14 +726,6 @@
 				data-lanes = <1 2 3 4>;
 				remote-endpoint = <&imx462_to_csi22>;
 			};
-
-//			csi_in2: endpoint {
-//				status = "okay";
-//				clock-lanes = <0>;
-//				data-lanes = <1 2 3 4>;
-//				bus-width = <0x04>;
-//				remote-endpoint = <&isx021_out2>;
-//			};
 		};
 	};
 };
@@ -1287,19 +741,9 @@
 		port {
 			csi23_in: endpoint {
 				clock-lanes = <0>;
-				// data-lanes = <1 2>;
 				data-lanes = <1 2 3 4>;
-				// remote-endpoint = <&ov5645_to_csi>;
 				remote-endpoint = <&imx462_to_csi23>;
 			};
-
-//			csi_in3: endpoint {
-//				status = "okay";
-//				clock-lanes = <0>;
-//				data-lanes = <1 2 3 4>;
-//				bus-width = <0x04>;
-//				remote-endpoint = <&isx021_out3>;
-//			};
 		};
 	};
 };
