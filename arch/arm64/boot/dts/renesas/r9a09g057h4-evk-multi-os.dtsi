@@ -1,0 +1,74 @@
+// SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+/*
+ * Device Tree Source for the RZ/V2H EVK SoC support OpenAMP related stuff
+ *
+ * Copyright (C) 2024 Renesas Electronics Corp.
+ */
+
+/ {
+	compatible = "renesas,r9a09g057h4", "renesas,r9a09g057";
+
+       vring-ctl0@43000000 {
+               compatible = "vring_uio";
+               reg = <0x0 0x43000000 0x0 0x100000>;
+               no-map;
+       };
+
+       vring-ctl1@43100000 {
+               compatible = "vring_uio";
+               reg = <0x0 0x43100000 0x0 0x100000>;
+               no-map;
+       };
+
+       vring-shm0@43200000 {
+               compatible = "shm_uio";
+               reg = <0x0 0x43200000 0x0 0x300000>;
+               no-map;
+       };
+
+       vring-shm1@43500000 {
+               compatible = "shm_uio";
+               reg = <0x0 0x43500000 0x0 0x300000>;
+               no-map;
+       };
+
+       rsctbl@42f00000 {
+               compatible = "shm_uio";
+               reg = <0x0 0x42f00000 0x0 0x1000>;
+               no-map;
+       };
+
+       mhu-shm@42f01000 {
+               compatible = "shm_uio";
+               reg = <0x0 0x42f01000 0x0 0x1000>;
+               no-map;
+       };
+
+       mbox-uio@10480000 {
+               compatible = "mbox_uio";
+               reg = <0x00 0x10480000 0x00 0x1000>;
+               status = "okay";
+       };
+
+       receiver@10480100 {
+               compatible = "receiver";
+               interrupt-parent = <0x06>;
+               interrupts = <0x00 0x181 0x04>;
+               status = "okay";
+       };
+
+       receiver@104800C0 {
+              compatible = "receiver";
+               interrupt-parent = <0x06>;
+               interrupts = <0x00 0x17f 0x04>;
+               status = "okay";
+       };
+
+       receiver@104800E0 {
+               compatible = "receiver";
+               interrupt-parent = <0x06>;
+               interrupts = <0x00 0x180 0x04>;
+               status = "okay";
+       };
+};
+
