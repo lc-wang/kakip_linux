@@ -1,0 +1,256 @@
+// SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+/*
+ * Device Tree Source for the Kakip ES 1 board
+ *
+ * Copyright (C) 2024 AMATAMA Co.
+ */
+
+/dts-v1/;
+#include "kakip-es1.dts"
+
+/ {
+	imx462_vdddo_1v8: 1p8v {
+		compatible = "regulator-fixed";
+		regulator-name = "camera_vdddo";
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <1800000>;
+		regulator-always-on;
+	};
+
+	imx462_vdda_2v8: 2p8v {
+		compatible = "regulator-fixed";
+		regulator-name = "camera_vdda";
+		regulator-min-microvolt = <2800000>;
+		regulator-max-microvolt = <2800000>;
+		regulator-always-on;
+	};
+
+	imx462_vddd_1v5: 1p5v {
+		compatible = "regulator-fixed";
+		regulator-name = "camera_vddd";
+		regulator-min-microvolt = <1500000>;
+		regulator-max-microvolt = <1500000>;
+		regulator-always-on;
+	};
+};
+
+&csi20 {
+	status = "okay";
+
+	ports {
+		port {
+			csi20_in: endpoint {
+				clock-lanes = <0>;
+				data-lanes = <1 2 3 4>;
+				remote-endpoint = <&imx462_to_csi20>;
+			};
+		};
+	};
+};
+
+&csi21 {
+	status = "okay";
+
+	ports {
+		port {
+			csi21_in: endpoint {
+				clock-lanes = <0>;
+				data-lanes = <1 2 3 4>;
+				remote-endpoint = <&imx462_to_csi21>;
+			};
+		};
+	};
+};
+
+&csi22 {
+	status = "okay";
+
+	ports {
+		port {
+			csi22_in: endpoint {
+				clock-lanes = <0>;
+				data-lanes = <1 2 3 4>;
+				remote-endpoint = <&imx462_to_csi22>;
+			};
+		};
+	};
+};
+
+&csi23 {
+	status = "okay";
+
+	ports {
+		port {
+			csi23_in: endpoint {
+				clock-lanes = <0>;
+				data-lanes = <1 2 3 4>;
+				remote-endpoint = <&imx462_to_csi23>;
+			};
+		};
+	};
+};
+
+&i2c0 {
+	pinctrl-0 = <&i2c0_pins>;
+	pinctrl-names = "default";
+
+	status = "okay";
+
+	pca6408_0: pca6408_0@20 {
+		compatible = "ti,pca6408";
+		gpio-controller;
+		#gpio-cells = <2>;
+		reg = <0x20>;
+		status = "okay";
+	};
+
+	imx462_csi20: imx462_csi20@1f {
+		compatible = "imx462";
+		reg = <0x1f>;
+		clock-names = "xclk";
+		clocks = <&clk_ext_camera>;
+		clock-frequency = <24000000>;
+		camera-mipi-clk = <800>; //Not used , but for future purpose
+		camera-mipi-lanes = <4>; //Not used , but for future purpose
+		vdddo-supply = <&imx462_vdddo_1v8>;
+		vdda-supply = <&imx462_vdda_2v8>;
+		vddd-supply = <&imx462_vddd_1v5>;
+		/* Set dummy enable gpio */
+		pwdn-gpios = <&pca6408_0 0 GPIO_ACTIVE_HIGH>;
+		reset-gpios = <&pca6408_0 1 GPIO_ACTIVE_HIGH>;
+
+		port {
+			imx462_to_csi20: endpoint {
+				clock-lanes = <0>;
+				data-lanes = <1 2 3 4>;
+				remote-endpoint = <&csi20_in>;
+			};
+		};
+	};
+	
+	/delete-node/ ov5645_csi20@3c;
+};
+
+&i2c1 {
+	pinctrl-0 = <&i2c1_pins>;
+	pinctrl-names = "default";
+
+	status = "okay";
+
+	pca6408_1: pca6408_1@20 {
+		compatible = "ti,pca6408";
+		gpio-controller;
+		#gpio-cells = <2>;
+		reg = <0x20>;
+		status = "okay";
+	};
+
+	imx462_csi21: imx462_csi21@1f {
+		compatible = "imx462";
+		reg = <0x1f>;
+		clock-names = "xclk";
+		clocks = <&clk_ext_camera>;
+		clock-frequency = <24000000>;
+		camera-mipi-clk = <800>; //Not used , but for future purpose
+		camera-mipi-lanes = <4>; //Not used , but for future purpose
+		vdddo-supply = <&imx462_vdddo_1v8>;
+		vdda-supply = <&imx462_vdda_2v8>;
+		vddd-supply = <&imx462_vddd_1v5>;
+		/* Set dummy enable gpio */
+		pwdn-gpios = <&pca6408_1 0 GPIO_ACTIVE_HIGH>;
+		reset-gpios = <&pca6408_1 1 GPIO_ACTIVE_HIGH>;
+
+		port {
+			imx462_to_csi21: endpoint {
+				clock-lanes = <0>;
+				data-lanes = <1 2 3 4>;
+				remote-endpoint = <&csi21_in>;
+			};
+		};
+	};
+	
+	/delete-node/ ov5645_csi21@3c;
+};
+
+&i2c2 {
+	pinctrl-0 = <&i2c2_pins>;
+	pinctrl-names = "default";
+
+	status = "okay";
+
+	pca6408_2: pca6408_2@20	{
+		compatible = "ti,pca6408";
+		gpio-controller;
+		#gpio-cells = <2>;
+		reg = <0x20>;
+		status = "okay";
+	};
+
+	imx462_csi22: imx462_csi22@1f {
+		compatible = "imx462";
+		reg = <0x1f>;
+		clock-names = "xclk";
+		clocks = <&clk_ext_camera>;
+		clock-frequency = <24000000>;
+		camera-mipi-clk = <800>; //Not used , but for future purpose
+		camera-mipi-lanes = <4>; //Not used , but for future purpose
+		vdddo-supply = <&imx462_vdddo_1v8>;
+		vdda-supply = <&imx462_vdda_2v8>;
+		vddd-supply = <&imx462_vddd_1v5>;
+		/* Set dummy enable gpio */
+		pwdn-gpios = <&pca6408_2 0 GPIO_ACTIVE_HIGH>;
+		reset-gpios = <&pca6408_2 1 GPIO_ACTIVE_HIGH>;
+
+		port {
+			imx462_to_csi22: endpoint {
+				clock-lanes = <0>;
+				data-lanes = <1 2 3 4>;
+				remote-endpoint = <&csi22_in>;
+			};
+		};
+	};
+	
+	/delete-node/ ov5645_csi22@3c;
+};
+
+&i2c3 {
+	pinctrl-0 = <&i2c3_pins>;
+	pinctrl-names = "default";
+
+	status = "okay";
+
+	pca6408_3: pca6408_3@20 {
+		compatible = "ti,pca6408";
+		gpio-controller;
+		#gpio-cells = <2>;
+		reg = <0x20>;
+		status = "okay";
+	};
+
+	imx462_csi23: imx462_csi23@1f {
+		compatible = "imx462";
+		reg = <0x1f>;
+		clock-names = "xclk";
+		clocks = <&clk_ext_camera>;
+		clock-frequency = <24000000>;
+		camera-mipi-clk = <800>; //Not used , but for future purpose
+		camera-mipi-lanes = <4>; //Not used , but for future purpose
+		vdddo-supply = <&imx462_vdddo_1v8>;
+		vdda-supply = <&imx462_vdda_2v8>;
+		vddd-supply = <&imx462_vddd_1v5>;
+		/* Set dummy enable gpio */
+		pwdn-gpios = <&pca6408_3 0 GPIO_ACTIVE_HIGH>;
+		reset-gpios = <&pca6408_3 1 GPIO_ACTIVE_HIGH>;
+
+		port {
+			imx462_to_csi23: endpoint {
+				clock-lanes = <0>;
+				data-lanes = <1 2 3 4>;
+				remote-endpoint = <&csi23_in>;
+			};
+		};
+	};
+	
+	/delete-node/ ov5645_csi23@3c;
+};
+
