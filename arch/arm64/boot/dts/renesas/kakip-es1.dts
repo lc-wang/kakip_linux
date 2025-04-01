@@ -11,28 +11,14 @@
 #include <dt-bindings/pinctrl/rzg2l-pinctrl.h>
 #include <dt-bindings/gpio/gpio.h>
 
-/*
- * Jumper setting
- *
- * Please change the jumper setting corresponding to below Macros:
- *
- * SEL_CAN01_HEADER:
- *	1: CAN0/1	0: External Header Pin
- */
-
-#define SEL_CAN01_HEADER	1
-
 / {
 	model = "Kakip ES 1 based on r9a09g057h4";
 	compatible = "renesas,r9a09g057h4-evk-ver1", "renesas,r9a09g057h4", "renesas,r9a09g057";
 
 	aliases {
 		serial0 = &scif0;
-		serial1 = &sci4;
 		serial2 = &sci5;
 		mmc0 = &sdhi0;
-		mmc1 = &sdhi1;
-		mmc2 = &sdhi2;
 		ethernet0 = &eth0;
 		ethernet1 = &eth1;
 	};
@@ -46,6 +32,20 @@
 		device_type = "memory";
 		/* first 128MB is reserved for secure area. */
 		reg = <0x0 0x48000000 0x1 0xF8000000>;
+	};
+
+	pwm0_gpio: pwm0-gpio {
+		compatible = "pwm-gpio";
+		gpios = <&pinctrl RZG2L_GPIO(10, 4) GPIO_ACTIVE_HIGH>;
+		#pwm-cells = <3>;
+		status = "disabled";
+	};
+
+	pwm1_gpio: pwm1-gpio {
+		compatible = "pwm-gpio";
+		gpios = <&pinctrl RZG2L_GPIO(10, 5) GPIO_ACTIVE_HIGH>;
+		#pwm-cells = <3>;
+		status = "disabled";
 	};
 
 	reserved-memory {
@@ -141,19 +141,6 @@
 		states = <3300000 0 1800000 1>;
 	};
 
-	vccq_sdhi1: regulator-vccq-sdhi1 {
-		compatible = "regulator-gpio";
-
-		regulator-name = "SDHI1 VccQ";
-		regulator-min-microvolt = <1800000>;
-		regulator-max-microvolt = <3300000>;
-
-		gpios = <&pinctrl RZG2L_GPIO(10, 2) GPIO_ACTIVE_HIGH>;
-
-		gpios-states = <0>;
-		states = <3300000 0 1800000 1>;
-	};
-
 	hdmi-out {
 		compatible = "hdmi-connector";
 		type = "d";
@@ -188,30 +175,37 @@
 };
 
 &pinctrl {
-#if (SEL_CAN01_HEADER)
+	gpio-line-names = \
+	"", "", "", "","", "", "", "", \
+	"", "", "", "","", "", "", "", \
+	"", "", "", "","", "", "", "", \
+	"", "", "", "","", "", "", "", \
+	"", "", "", "","", "", "", "", \
+	"", "", "", "","", "", "", "", \
+	"", "", "", "","", "", "", "", \
+	"", "GPIO4", "GPIO14", "GPIO15","GPIO5", "", "GPIO2", "GPIO3", \
+	"", "", "GPIO16", "GPIO17","GPIO0", "GPIO1", "", "", \
+	"GPIO10", "GPIO9", "GPIO11", "GPIO8","GPIO7", "GPIO18", "GPIO19", "GPIO21", \
+	"", "", "", "","GPIO12", "GPIO13", "GPIO20", "GPIO6", \
+	"GPIO22", "GPIO24", "GPIO25", "GPIO26","GPIO27", "GPIO23", "", "";
+
 	can0_pins: can0 {
 		pinmux = <RZG2L_PORT_PINMUX(8, 0, 5)>, /* TX */
 			 <RZG2L_PORT_PINMUX(8, 1, 5)>; /* RX */
 	};
 
-	can1_pins: can1 {
-		pinmux = <RZG2L_PORT_PINMUX(8, 2, 5)>, /* TX */
-			 <RZG2L_PORT_PINMUX(8, 3, 5)>; /* RX */
+	can3_pins: can3 {
+		pinmux = <RZG2L_PORT_PINMUX(8, 6, 5)>, /* TX */
+			 <RZG2L_PORT_PINMUX(8, 7, 5)>; /* RX */
 	};
-#endif
 
 	scif0_pins: scif0 {
 		pins =  "SCIF_RXD", "SCIF_TXD";
 	};
 
-	sci4_pins: sci4 {
-		pinmux = <RZG2L_PORT_PINMUX(8, 4, 6)>, /* SCI4_TXD_MOSI_SDA */
-			 <RZG2L_PORT_PINMUX(8, 5, 6)>; /* SCI4_RXD_MISO_SCL */
-	};
-
 	sci5_pins: sci5 {
-		pinmux = <RZG2L_PORT_PINMUX(8, 6, 6)>, /* SCI5_TXD_MOSI_SDA */
-			 <RZG2L_PORT_PINMUX(8, 7, 6)>; /* SCI5_RXD_MISO_SCL */
+		pinmux = <RZG2L_PORT_PINMUX(7, 2, 1)>, /* SCI5_TXD_MOSI_SDA */
+			 <RZG2L_PORT_PINMUX(7, 3, 1)>; /* SCI5_RXD_MISO_SCL */
 	};
 
 	sd0_pwr_en {
@@ -226,26 +220,6 @@
 		gpios = <RZG2L_GPIO(10, 3) GPIO_ACTIVE_HIGH>;
 		output-high;
 		line-name = "sd1_pwr_en";
-	};
-
-	/* cam0_pwr_en is used by Google Coral Camera from CSI20 and CSI21 */
-	cam0_pwr_en {
-		gpio-hog;
-		gpios = <RZG2L_GPIO(11, 2) GPIO_ACTIVE_HIGH>;
-		output-high;
-		line-name = "cam0_pwr_en";
-	};
-
-	sdhi0_pins: sd0 {
-		sd0_mux {
-			pinmux = <RZG2L_PORT_PINMUX(10, 5, 15)>; /* SD0_CD */
-		};
-	};
-
-	sdhi1_pins: sd1 {
-		sd1_mux {
-			pinmux = <RZG2L_PORT_PINMUX(9, 4, 14)>; /* SD1_CD */
-		};
 	};
 
 	i2c0_pins: i2c0 {
@@ -300,27 +274,6 @@
 
 	usb21_pins: usb21 {
 	};
-
-	spi0_pins: spi0 {
-		pinmux = <RZG2L_PORT_PINMUX(9, 1, 1)>, /* MISO */
-			 <RZG2L_PORT_PINMUX(9, 0, 1)>, /* MOSI */
-			 <RZG2L_PORT_PINMUX(9, 3, 1)>, /* SSL0 */
-			 <RZG2L_PORT_PINMUX(9, 4, 1)>, /* SSL0 */
-			 <RZG2L_PORT_PINMUX(9, 2, 1)>; /* RSPCK */
-	};
-
-#if (!SEL_CAN01_HEADER)
-	spdif0_pins: spdif0 {
-		pinmux = <RZG2L_PORT_PINMUX(8, 0, 8)>, /* SPDIF0_OUT */
-			 <RZG2L_PORT_PINMUX(8, 1, 8)>; /* SPDIF0_IN */
-	};
-
-	spdif2_pins: spdif2 {
-		pinmux = <RZG2L_PORT_PINMUX(8, 2, 8)>, /* SPDIF2_OUT */
-			 <RZG2L_PORT_PINMUX(8, 3, 8)>; /* SPDIF2_IN */
-	};
-#endif
-
 };
 
 &extal_clk {
@@ -342,12 +295,6 @@
 	status = "okay";
 };
 
-&sci4 {
-	pinctrl-0 = <&sci4_pins>;
-	pinctrl-names = "default";
-	status = "okay";
-};
-
 &sci5 {
 	pinctrl-0 = <&sci5_pins>;
 	pinctrl-names = "default";
@@ -355,22 +302,11 @@
 };
 
 &sdhi0 {
-	pinctrl-0 = <&sdhi0_pins>;
-	pinctrl-names = "default";
 	vmmc-supply = <&reg_3p3v>;
 	vqmmc-supply = <&vccq_sdhi0>;
-	bus-width = <4>;
-	status = "okay";
-};
-
-&sdhi1 {
-	pinctrl-0 = <&sdhi1_pins>;
-	pinctrl-names = "default";
-	vmmc-supply = <&reg_3p3v>;
-	vqmmc-supply = <&vccq_sdhi1>;
+	non-removable;
 	bus-width = <4>;
 	sd-uhs-sdr50;
-	sd-uhs-sdr104;
 	status = "okay";
 };
 
@@ -630,9 +566,8 @@
 		status = "disable";
 };
 
-#if (SEL_CAN01_HEADER)
 &canfd {
-	pinctrl-0 = <&can0_pins &can1_pins>;
+	pinctrl-0 = <&can0_pins &can3_pins>;
 	pinctrl-names = "default";
 	status = "okay";
 
@@ -640,11 +575,10 @@
 		status = "okay";
 	};
 
-	channel1 {
+	channel3 {
 		status = "okay";
 	};
 };
-#endif
 
 &rtc {
 	status = "okay";
@@ -659,13 +593,6 @@
     memory-oca-region = <&opencva0>;
 
     status = "okay";
-};
-
-&spi0 {
-	pinctrl-0 = <&spi0_pins>;
-	pinctrl-names = "default";
-
-	status = "okay";
 };
 
 &xspi {

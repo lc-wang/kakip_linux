@@ -1510,7 +1510,8 @@ static void rzg2l_gpio_free(struct gpio_chip *chip, unsigned int offset)
 	 * Set the GPIO as an input to ensure that the next GPIO request won't
 	 * drive the GPIO pin as an output.
 	 */
-	rzg2l_gpio_direction_input(chip, offset);
+	if (rzg2l_gpio_get_direction(chip, offset) == GPIO_LINE_DIRECTION_IN)
+		rzg2l_gpio_direction_input(chip, offset);
 }
 
 static const char * const rzg2l_gpio_names[] = {
