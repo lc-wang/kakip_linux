@@ -692,10 +692,14 @@ int gpiochip_add_data_with_key(struct gpio_chip *gc, void *data,
 	INIT_LIST_HEAD(&gdev->pin_ranges);
 #endif
 
-	if (gc->names)
-		ret = devprop_gpiochip_set_names(gc);
-	else
-		ret = gpiochip_set_desc_names(gc);
+	ret = devprop_gpiochip_set_names(gc);
+
+	if (ret) {
+		if (gc->names) {
+			ret = gpiochip_set_desc_names(gc);
+		}
+	}
+
 	if (ret)
 		goto err_remove_from_list;
 
