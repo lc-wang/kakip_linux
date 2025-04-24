@@ -66,6 +66,9 @@
 /* Memory Bank Status Register for CRU Image Data */
 #define AMnMBS_MBSTS			0x7
 
+/* AXI-VD Bus Master Transfer Setting Register */
+#define AMnAXIATTR_AXILEN		GENMASK(3, 0)
+
 /* AXI Master FIFO Pointer Register for CRU Image Data */
 #define AMnFIFOPNTR_FIFOWPNTR		GENMASK(7, 0)
 #define AMnFIFOPNTR_FIFORPNTR_Y		GENMASK(23, 16)
@@ -458,6 +461,7 @@ static void rzg2l_cru_fill_hw_slot(struct rzg2l_cru_dev *cru, int slot)
 static int rzg2l_cru_initialize_axi(struct rzg2l_cru_dev *cru)
 {
 	int slot;
+	u32 reg;
 
 	/* Set image data memory banks.
 	 * Currently, we will use maximum address.
@@ -486,6 +490,10 @@ static int rzg2l_cru_initialize_axi(struct rzg2l_cru_dev *cru)
 			return -EINVAL;
 		}
 	}
+
+	/* Set AXI burst max length to recommended setting */
+	reg = rzg2l_cru_read(cru, AMnAXIATTR) & ~AMnAXIATTR_AXILEN;
+	rzg2l_cru_write(cru, AMnAXIATTR, reg | 0xF);
 
 	return 0;
 }
