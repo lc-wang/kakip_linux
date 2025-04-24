@@ -54,6 +54,9 @@ MODULE_LICENSE("GPL");
 #define POLL_INTERVAL_CEC_MS	10
 #define POLL_INTERVAL_MS	1000
 
+/* This Pixel Rate is for RGB3, 1080p60. */
+#define TC358743_PIXEL_RATE 148500000
+
 static const struct v4l2_dv_timings_cap tc358743_timings_cap = {
 	.type = V4L2_DV_BT_656_1120,
 	/* keep this initialization for compatibility with GCC < 4.4.6 */
@@ -81,6 +84,7 @@ struct tc358743_state {
 	struct v4l2_ctrl *detect_tx_5v_ctrl;
 	struct v4l2_ctrl *audio_sampling_rate_ctrl;
 	struct v4l2_ctrl *audio_present_ctrl;
+	struct v4l2_ctrl *pixel_rate;
 
 	struct delayed_work delayed_work_enable_hotplug;
 
@@ -2108,6 +2112,12 @@ static int tc358743_probe(struct i2c_client *client)
 
 	state->detect_tx_5v_ctrl = v4l2_ctrl_new_std(&state->hdl, NULL,
 			V4L2_CID_DV_RX_POWER_PRESENT, 0, 1, 0, 0);
+
+	state->pixel_rate = v4l2_ctrl_new_std(&state->hdl, NULL,
+			V4L2_CID_PIXEL_RATE,
+			TC358743_PIXEL_RATE,
+			TC358743_PIXEL_RATE, 1,
+			TC358743_PIXEL_RATE);
 
 	/* custom controls */
 	state->audio_sampling_rate_ctrl = v4l2_ctrl_new_custom(&state->hdl,
