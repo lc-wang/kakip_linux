@@ -46,6 +46,7 @@ enum {
 	AMnSVCAOFH,	/* SVC Data Address Offset Higher Register */
 	AMnIVT0ADDRL,	/* AXI-VD Bus Transfer Completion Event Address 0 Lower Register */
 	AMnIVT0ADDRH,	/* AXI-VD Bus Transfer Completion Event Address 0 Higher Register */
+	AMnAXIATTR,	/* AXI-VD Bus Master Transfer Setting Register */
 	AMnFIFO,	/* AXI-VD Master FIFO Setting Register */
 	AMnFIFOPNTR,	/* AXI-VD Bus Master FIFO Pointer Register */
 	AMnAXISTP,	/* AXI-VD Bus Master Transfer Stop Register */
@@ -86,6 +87,7 @@ static const struct regs_offset  rzg2l_cru_regs_offset[] = {
 	[AMnUVAOFH]	=	{ .offset = 0x144, },
 	[AMnMBVALID]	=	{ .offset = 0x148, },
 	[AMnMBS]	=	{ .offset = 0x14C, },
+	[AMnAXIATTR]	=	{ .offset = 0x158, },
 	[AMnFIFO]	=	{ .offset = 0x160, },
 	[AMnFIFOPNTR]	=	{ .offset = 0x168, },
 	[AMnAXISTP]	=	{ .offset = 0x174, },
@@ -122,6 +124,7 @@ static const struct regs_offset rzv2h_cru_regs_offset[] = {
 	[AMnSVCAOFH]	=	{ .offset = 0x0A0, },
 	[AMnIVT0ADDRL]	=	{ .offset = 0x0B4, },
 	[AMnIVT0ADDRH]	=	{ .offset = 0x0B8, },
+	[AMnAXIATTR]	=	{ .offset = 0x0EC, },
 	[AMnFIFO]	=	{ .offset = 0x0F0, },
 	[AMnFIFOPNTR]	=	{ .offset = 0x0F8, },
 	[AMnAXISTP]	=	{ .offset = 0x110, },
