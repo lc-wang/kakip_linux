@@ -1,0 +1,219 @@
+// SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+/*
+ * Device Tree Source for the Kakip ES 1 board
+ *
+ * Copyright (C) 2025 AMATAMA Co.
+ */
+
+/dts-v1/;
+/plugin/;
+
+#include <dt-bindings/pinctrl/rzg2l-pinctrl.h>
+#include <dt-bindings/gpio/gpio.h>
+
+/ {
+	fragment@1 {
+		target = <&csi20>;
+
+		__overlay__ {
+			status = "okay";
+
+			ports {
+				port@2 {
+					csi20_in: endpoint {
+						clock-lanes = <0>;
+						data-lanes = <1 2 3 4>;
+						remote-endpoint = <&tc358743_to_csi20>;
+					};
+				};
+			};
+		};
+	};
+
+	fragment@2 {
+		target = <&csi21>;
+
+		__overlay__ {
+			status = "okay";
+
+			ports {
+				port@2 {
+					csi21_in: endpoint {
+						clock-lanes = <0>;
+						data-lanes = <1 2 3 4>;
+						remote-endpoint = <&tc358743_to_csi21>;
+					};
+				};
+			};
+		};
+	};
+
+	fragment@3 {
+		target = <&csi22>;
+
+		__overlay__ {
+			status = "okay";
+
+			ports {
+				port@2 {
+					csi22_in: endpoint {
+						clock-lanes = <0>;
+						data-lanes = <1 2 3 4>;
+						remote-endpoint = <&tc358743_to_csi22>;
+					};
+				};
+			};
+		};
+	};
+
+	fragment@4 {
+		target = <&csi23>;
+
+		__overlay__ {
+			status = "okay";
+
+			ports {
+				port@2 {
+					csi23_in: endpoint {
+						clock-lanes = <0>;
+						data-lanes = <1 2 3 4>;
+						remote-endpoint = <&tc358743_to_csi23>;
+					};
+				};
+			};
+		};
+	};
+
+	fragment@10 {
+		target = <&i2c0>;
+
+		__overlay__ {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "okay";
+
+			tc358743_csi20: tc358743_csi20@f {
+				compatible = "toshiba,tc358743";
+				reg = <0x0f>;
+				status = "okay";
+
+				clocks = <&hdmi_osc>;
+				clock-names = "refclk";
+				clock-frequency = <27000000>;
+				reset-gpios = <&pinctrl RZG2L_GPIO(4, 0) GPIO_ACTIVE_LOW>;
+
+				port {
+					tc358743_to_csi20: endpoint {
+						remote-endpoint = <&csi20_in>;
+						data-lanes = <1 2 3 4>;
+						clock-lanes = <0>;
+						clock-noncontinuous;
+						link-frequencies = /bits/ 64 <445500000>;
+					};
+				};
+			};
+		};
+	};
+
+	fragment@20 {
+		target = <&i2c1>;
+
+		__overlay__ {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "okay";
+
+			tc358743_csi21: tc358743_csi21@f {
+				compatible = "toshiba,tc358743";
+				reg = <0x0f>;
+				status = "okay";
+
+				clocks = <&hdmi_osc>;
+				clock-names = "refclk";
+				clock-frequency = <27000000>;
+				reset-gpios = <&pinctrl RZG2L_GPIO(4, 2) GPIO_ACTIVE_LOW>;
+
+				port {
+					tc358743_to_csi21: endpoint {
+						remote-endpoint = <&csi21_in>;
+						data-lanes = <1 2 3 4>;
+						clock-lanes = <0>;
+						clock-noncontinuous;
+						link-frequencies = /bits/ 64 <445500000>;
+					};
+				};
+			};
+		};
+	};
+
+	fragment@30 {
+		target = <&i2c2>;
+
+		__overlay__ {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "okay";
+
+			tc358743_csi22: tc358743_csi22@f {
+				compatible = "toshiba,tc358743";
+				reg = <0x0f>;
+				status = "okay";
+
+				clocks = <&hdmi_osc>;
+				clock-names = "refclk";
+				clock-frequency = <27000000>;
+				reset-gpios = <&pinctrl RZG2L_GPIO(4, 4) GPIO_ACTIVE_LOW>;
+
+				port {
+					tc358743_to_csi22: endpoint {
+						remote-endpoint = <&csi22_in>;
+						data-lanes = <1 2 3 4>;
+						clock-lanes = <0>;
+						clock-noncontinuous;
+						link-frequencies = /bits/ 64 <445500000>;
+					};
+				};
+			};
+		};
+	};
+
+	fragment@40 {
+		target = <&i2c3>;
+
+		__overlay__ {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "okay";
+
+			tc358743_csi23: tc358743_csi23@f {
+				compatible = "toshiba,tc358743";
+				reg = <0x0f>;
+				status = "okay";
+
+				clocks = <&hdmi_osc>;
+				clock-names = "refclk";
+				clock-frequency = <27000000>;
+				reset-gpios = <&pinctrl RZG2L_GPIO(4, 6) GPIO_ACTIVE_LOW>;
+
+				port {
+					tc358743_to_csi23: endpoint {
+						remote-endpoint = <&csi23_in>;
+						data-lanes = <1 2 3 4>;
+						clock-lanes = <0>;
+						clock-noncontinuous;
+						link-frequencies = /bits/ 64 <445500000>;
+					};
+				};
+			};
+		};
+	};
+};
+
+&{/} {
+	hdmi_osc: hdmi_osc {
+		compatible = "fixed-clock";
+		clock-output-names = "hdmi_osc";
+		clock-frequency = <27000000>;
+		#clock-cells = <0>;
+	};
+};
