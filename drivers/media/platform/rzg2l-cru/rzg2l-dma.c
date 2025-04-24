@@ -1258,7 +1258,7 @@ static irqreturn_t rzv2h_cru_irq(int irq, void *data)
 	u32 irq_status, slot;
 	unsigned int handled = 0;
 	dma_addr_t phys_addr;
-	bool write_complete;
+	bool write_complete = 0;
 
 	spin_lock_irqsave(&cru->qlock, flags);
 
