@@ -1,0 +1,36 @@
+/dts-v1/;
+/plugin/;
+
+#include <dt-bindings/pinctrl/rzg2l-pinctrl.h>
+#include <dt-bindings/gpio/gpio.h>
+
+/ {
+	fragment@0 {
+		target-path = "/aliases";
+		__overlay__ {
+			i2c10 = "/soc/serial@12802800";
+		};
+	};
+
+	fragment@1 {
+		target = <&pinctrl>;
+		__overlay__ {
+			sci7_pins: sci7 {
+				pinmux = <RZG2L_PORT_PINMUX(7, 6, 1)>, /* SCI7_TXD_MOSI_SDA */
+					 <RZG2L_PORT_PINMUX(7, 7, 1)>; /* SCI7_RXD_MISO_SCL */
+				drive-open-drain;
+			};
+		};
+	};
+
+	fragment@2 {
+		target = <&sci7>;
+		__overlay__ {
+			compatible = "renesas,r9a09g057-rz-rsci-i2c";
+			pinctrl-0 = <&sci7_pins>;
+			pinctrl-names = "default";
+			clock-frequency = <100000>;
+			status = "okay";
+		};
+	};
+};
