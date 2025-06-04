@@ -194,9 +194,23 @@
 			 <RZG2L_PORT_PINMUX(8, 1, 5)>; /* RX */
 	};
 
+	can0_stb {
+		gpio-hog;
+		gpios = <RZG2L_GPIO(10, 2) GPIO_ACTIVE_LOW>;
+		output-high;
+		line-name = "can0_stb";
+	};
+
 	can3_pins: can3 {
 		pinmux = <RZG2L_PORT_PINMUX(8, 6, 5)>, /* TX */
 			 <RZG2L_PORT_PINMUX(8, 7, 5)>; /* RX */
+	};
+
+	can3_stb {
+		gpio-hog;
+		gpios = <RZG2L_GPIO(10, 3) GPIO_ACTIVE_LOW>;
+		output-high;
+		line-name = "can3_stb";
 	};
 
 	scif0_pins: scif0 {
@@ -213,13 +227,6 @@
 		gpios = <RZG2L_GPIO(10, 1) GPIO_ACTIVE_HIGH>;
 		output-high;
 		line-name = "sd0_pwr_en";
-	};
-
-	sd1_pwr_en {
-		gpio-hog;
-		gpios = <RZG2L_GPIO(10, 3) GPIO_ACTIVE_HIGH>;
-		output-high;
-		line-name = "sd1_pwr_en";
 	};
 
 	i2c0_pins: i2c0 {
