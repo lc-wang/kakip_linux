@@ -493,7 +493,7 @@ static int rzg2l_cru_initialize_axi(struct rzg2l_cru_dev *cru)
 
 	/* Set AXI burst max length to recommended setting */
 	reg = rzg2l_cru_read(cru, AMnAXIATTR) & ~AMnAXIATTR_AXILEN;
-	rzg2l_cru_write(cru, AMnAXIATTR, reg | 0xF);
+	rzg2l_cru_write(cru, AMnAXIATTR, reg | 0x6);
 
 	return 0;
 }
