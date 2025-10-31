@@ -109,6 +109,7 @@ struct rzv2h_pcie_host {
 	struct irq_domain	*intx_domain;
 	struct reset_control    *rst;
 	int			channel;
+	int			link_gen;
 };
 
 static int rzv2h_pcie_hw_init(struct rzv2h_pcie *pcie, int channel);
@@ -431,6 +432,92 @@ static void rzv2h_pcie_force_speedup(struct rzv2h_pcie *pcie)
         return;
 };
 
+static void rzv2h_pcie_set_link_speed(struct rzv2h_pcie *pcie, int link_gen)
+{
+	struct device *dev = pcie->dev;
+	unsigned int timeout = 1000;
+	u32 pcctrl2, linkcs, linkcs2;
+	const char *speed_str;
+
+	/* Always set the target link speed register as the upper limit */
+	linkcs2 = rzv2h_pci_read_reg(pcie, PCI_RC_LINKCS2);
+	linkcs2 &= (~PCI_RC_LINKCS2_TARGET_LINK_SPEED_MASK);
+
+	switch (link_gen) {
+	case 3:
+		linkcs2 |= PCI_RC_LINKCS2_TARGET_LINK_SPEED_8_0GTS;
+		speed_str = "8.0 GT/s (Gen3)";
+		break;
+	case 2:
+		linkcs2 |= PCI_RC_LINKCS2_TARGET_LINK_SPEED_5_0GTS;
+		speed_str = "5.0 GT/s (Gen2)";
+		break;
+	case 1:
+		linkcs2 |= PCI_RC_LINKCS2_TARGET_LINK_SPEED_2_5GTS;
+		speed_str = "2.5 GT/s (Gen1)";
+		break;
+	default:
+		return;
+	}
+
+	rzv2h_pci_write_reg(pcie, linkcs2, PCI_RC_LINKCS2);
+	dev_info(dev, "Setting Target Link Speed to %s\n", speed_str);
+
+	/* If the target is Gen1, setting the limit is enough. Verify and return. */
+	if (link_gen == 1) {
+		linkcs = rzv2h_pci_read_reg(pcie, PCI_RC_LINKCS);
+		linkcs &= PCI_RC_LINKCS_CUR_LINK_SPEED_MASK;
+
+		if (linkcs == PCI_RC_LINKCS_CUR_LINK_SPEED_2_5GTS) {
+			dev_info(dev, "Current link speed is 2.5 GT/s\n");
+		} else {
+			dev_warn(dev, "Link is up, but not at expected Gen1 speed (status: 0x%x)\n",
+				 linkcs);
+		}
+		return;
+	}
+
+	pcctrl2 = rzv2h_pci_read_reg(pcie, PCIE_CORE_CONTROL_2_REG);
+	pcctrl2 |= PCIE_LINK_CHANGE_REASON_INTENTIONAL;
+	pcctrl2 |= PCIE_LINK_SPEED_CHANGE_REQ;
+	pcctrl2 &= (~PCIE_LINK_SPEED_CHANGE_MASK);
+	pcctrl2 |= (link_gen == 3) ? PCIE_LINK_SPEED_CHANGE_8_0GTS :
+		   PCIE_LINK_SPEED_CHANGE_5_0GTS;
+
+	rzv2h_pci_write_reg(pcie, pcctrl2, PCIE_CORE_CONTROL_2_REG);
+
+	while (timeout--) {
+		if (rzv2h_pci_read_reg(pcie, PCI_RC_PEIS0_REG) &
+		    INT_SPEED_CHANGE_DONE) {
+
+			rzv2h_pci_write_reg(pcie, INT_SPEED_CHANGE_DONE,
+					    PCI_RC_PEIS0_REG);
+
+			pcctrl2 = rzv2h_pci_read_reg(pcie,
+						     PCIE_CORE_CONTROL_2_REG);
+			pcctrl2 &= (~PCIE_LINK_SPEED_CHANGE_REQ);
+			rzv2h_pci_write_reg(pcie, pcctrl2,
+					    PCIE_CORE_CONTROL_2_REG);
+
+			linkcs = rzv2h_pci_read_reg(pcie, PCI_RC_LINKCS);
+			linkcs &= PCI_RC_LINKCS_CUR_LINK_SPEED_MASK;
+
+			/* Confirm current link speed after changing */
+			if ((link_gen == 3) && (linkcs == PCI_RC_LINKCS_CUR_LINK_SPEED_8_0GTS)) {
+				dev_info(dev, "Current link speed is 8.0 GT/s\n");
+				return;
+			} else if ((link_gen == 2) && (linkcs == PCI_RC_LINKCS_CUR_LINK_SPEED_5_0GTS)) {
+				dev_info(dev, "Current link speed is 5.0 GT/s\n");
+				return;
+			}
+		}
+
+		udelay(100);
+	}
+
+	dev_err(dev, "Link Speed change failed\n");
+}
+
 static void rzv2h_pcie_hw_enable(struct rzv2h_pcie_host *host)
 {
 	struct rzv2h_pcie *pcie = &host->pcie;
@@ -439,8 +526,10 @@ static void rzv2h_pcie_hw_enable(struct rzv2h_pcie_host *host)
 	LIST_HEAD(res);
 	int i = 0;
 
-	/* Try setting to maximum link speed */
-	rzv2h_pcie_force_speedup(pcie);
+	if (host->link_gen > 0)
+		rzv2h_pcie_set_link_speed(pcie, host->link_gen);
+	else
+		rzv2h_pcie_force_speedup(pcie);
 
 	/* Setup PCI resources */
 	resource_list_for_each_entry(win, &bridge->windows) {
@@ -1237,6 +1326,18 @@ static int rzv2h_pcie_probe(struct platform_device *pdev)
 		arm_smccc_smc(RZ_SIP_SVC_SET_SYSPCIE, 0x1024, 0x1, 0, 0, 0, 0, 0, &local_res);
 	else
 		arm_smccc_smc(RZ_SIP_SVC_SET_SYSPCIE, 0x1054, 0x1, 0, 0, 0, 0, 0, &local_res);
+
+	host->link_gen = 0;
+	err = of_property_read_u32(dev->of_node, "max-link-speed", &host->link_gen);
+	if (err == 0) {
+		dev_info(dev, "max-link-speed found in DT, setting Gen%d\n", host->link_gen);
+		if (host->link_gen > 3 || host->link_gen < 1) {
+			dev_warn(dev, "Invalid max-link-speed %d, using auto-detection\n", host->link_gen);
+			host->link_gen = 0;
+		}
+	} else {
+		dev_info(dev, "max-link-speed not found in DT, using auto-detection\n");
+	}
 
 	pm_runtime_enable(pcie->dev);
 	err = pm_runtime_get_sync(pcie->dev);
